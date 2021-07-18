@@ -25,5 +25,17 @@ POST http://127.0.0.1:8080/room
 Content-Type: application/json
 
 {
-  "name": "fly的直播间"
+  "name": "小胖的直播间"
+}
+
+###############
+GET http://127.0.0.1:8080/room/1416708659240
+
+###############
+POST http://127.0.0.1:8080/roomList
+Content-Type: application/json
+
+{
+  "pageIndex": 0,
+  "pageSize": 100
 }

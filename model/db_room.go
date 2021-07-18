@@ -34,9 +34,19 @@ func SelectOneRoomByRootName(roomName string) (*rr.ResRoom, int64) {
 	return &r, rowAffect
 }
 
+func SelectOneRoomByRootID(roomID string) (*rr.ResRoom, int64) {
+	var r rr.ResRoom
+	rowAffect := db.Table("room").Where("id = ?", roomID).First(&r).RowsAffected
+	return &r, rowAffect
+}
+
 func SelectRoomListPage(index, size int) (rooms []rr.ResRoom, err error) {
-	err = db.Table("room").Order("created_at Desc").Offset(util.IndexToPage(index, size)).Limit(size).
-		Scan(rooms).Error
+	err = db.Table("room").
+		Order("created_at Desc").
+		Offset(util.IndexToPage(index, size)).
+		Limit(size).
+		Scan(&rooms).Error
+
 	if err != nil {
 		glog.Error(err)
 		return nil, err
