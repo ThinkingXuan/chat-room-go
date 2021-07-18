@@ -4,7 +4,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/spf13/viper"
-	"time"
 )
 
 var (
@@ -13,10 +12,8 @@ var (
 
 // Model base
 type Model struct {
-	ID        string     `json:"id" gorm:"primary_key;not null"`
-	CreatedAt string     `json:"created_at"`
-	UpdatedAt string     `json:"updated_at"`
-	DeletedAt *time.Time `sql:"index" json:"deleted_at" gorm:"default:NULL"`
+	ID        int64  `json:"id" gorm:"primary_key;not null"`
+	CreatedAt string `json:"created_at"`
 }
 
 //InitSQLite 初始化数据库

@@ -1,0 +1,23 @@
+
+###############
+POST http://127.0.0.1:8080/user
+Content-Type: application/json
+
+{
+  "username": "youxuan",
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "password": "string",
+  "phone": "string"
+}
+
+###############
+
+###############
+GET http://127.0.0.1:8080/userLogin?username=string&password=string
+
+###############
+GET http://127.0.0.1:8080/user/string
+
+
