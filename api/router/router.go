@@ -26,16 +26,16 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		room.POST("/room")              // Create a new room
 		room.PUT("/room/:roomid/enter") // Enter a room
 		room.PUT("/roomLeave")          // Leave a root
-		room.GET("/room/:roomid")       // get the room info
+		room.GET("/room/:roomid")       // Get the room info
 		room.GET("/room/:roomid/users") // Get user list in a room, only username in list
-		room.POST("/roomList")          // get the room list
+		room.POST("/roomList")          // Get the room list
 	}
 
 	// message router
 	message := e.Group("/", middleware.JWTAuth())
 	{
 		message.POST("/message/send")     // After enter a room, the user can send the message to the current room.
-		message.POST("/message/retrieve") //After enter a room, the user can retrieve the message in the current room
+		message.POST("/message/retrieve") // After enter a room, the user can retrieve the message in the current room
 	}
 
 	return e
