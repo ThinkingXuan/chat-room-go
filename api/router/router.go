@@ -21,14 +21,14 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		user.GET("/user/:username", handlers.GetUser, middleware.JWTAuth()) // Get user by user name
 	}
 	// room router
-	room := e.Group("/", middleware.JWTAuth())
+	room := e.Group("/")
 	{
-		room.POST("/room")              // Create a new room
-		room.PUT("/room/:roomid/enter") // Enter a room
-		room.PUT("/roomLeave")          // Leave a root
-		room.GET("/room/:roomid")       // Get the room info
-		room.GET("/room/:roomid/users") // Get user list in a room, only username in list
-		room.POST("/roomList")          // Get the room list
+		room.POST("/room", handlers.CreateRoom)            // Create a new room
+		room.PUT("/room/:roomid/enter")                    // Enter a room
+		room.PUT("/roomLeave")                             // Leave a root
+		room.GET("/room/:roomid", handlers.GetOneRoomInfo) // Get the room info
+		room.GET("/room/:roomid/users")                    // Get user list in a room, only username in list
+		room.POST("/roomList", handlers.GetRoomList)       // Get the room list
 	}
 
 	// message router

@@ -45,6 +45,6 @@ func InitDBTable() {
 	//开启日志
 	db.LogMode(true)
 	//模型绑定
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}, &Room{})
 
 }

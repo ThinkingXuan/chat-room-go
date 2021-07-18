@@ -20,4 +20,10 @@ GET http://127.0.0.1:8080/userLogin?username=string&password=string
 ###############
 GET http://127.0.0.1:8080/user/string
 
+###############
+POST http://127.0.0.1:8080/room
+Content-Type: application/json
 
+{
+  "name": "fly的直播间"
+}

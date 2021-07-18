@@ -13,13 +13,19 @@ type Room struct {
 }
 
 // CreateRoom create a room
-func CreateRoom(roomName string) error {
+func CreateRoom(roomName string) (*Room, error) {
 	room := &Room{
 		Name: roomName,
 	}
 	room.ID = util.GetSnowflakeID()
 	room.CreatedAt = util.GetNowTime()
-	return db.Model(Room{}).Create(room).Error
+	err := db.Model(Room{}).Create(room).Error
+
+	if err != nil {
+		glog.Error(err)
+		return &Room{}, err
+	}
+	return room, nil
 }
 
 func SelectOneRoomByRootName(roomName string) (*rr.ResRoom, int64) {
