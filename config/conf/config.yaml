@@ -14,3 +14,9 @@ sqlite_path: config/conf/chatroom.db
 
 
 #### Redis配置 ####
+
+#### JWT ####
+jwt:
+  secret: chat-root-go
+  # token 过期时间 单位：秒
+  timeout: 3600

@@ -2,6 +2,7 @@ package router
 
 import (
 	"chat-room-go/api/router/handlers"
+	"chat-room-go/api/router/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,12 +16,12 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// user router
 	user := e.Group("/")
 	{
-		user.POST("/user", handlers.CreateUser)       // Create user
-		user.GET("/userLogin", handlers.UserLogin)    // Logs user into the system
-		user.GET("/user/:username", handlers.GetUser) // Get user by user name
+		user.POST("/user", handlers.CreateUser)                             // Create user
+		user.GET("/userLogin", handlers.UserLogin)                          // Logs user into the system
+		user.GET("/user/:username", handlers.GetUser, middleware.JWTAuth()) // Get user by user name
 	}
 	// room router
-	room := e.Group("/")
+	room := e.Group("/", middleware.JWTAuth())
 	{
 		room.POST("/room")              // Create a new room
 		room.PUT("/room/:roomid/enter") // Enter a room
@@ -31,7 +32,7 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	// message router
-	message := e.Group("/")
+	message := e.Group("/", middleware.JWTAuth())
 	{
 		message.POST("/message/send")     // After enter a room, the user can send the message to the current room.
 		message.POST("/message/retrieve") //After enter a room, the user can retrieve the message in the current room
