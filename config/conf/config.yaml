@@ -1,0 +1,16 @@
+runmode: debug # 开发模式, debug, release, test
+addr: 8080 # http绑定端口
+url: 127.0.0.1:8080
+
+#### MySQL配置 ####
+db_url: 192.168.1.104
+#db_url: 127.0.0.1
+db_port: 3306
+db_name: root
+db_password: youxuan
+
+#### SQLite配置 ####
+sqlite_path: config/conf/chatroom.db
+
+
+#### Redis配置 ####
