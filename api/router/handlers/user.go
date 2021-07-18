@@ -5,7 +5,6 @@ import (
 	"chat-room-go/api/router/rr"
 	"chat-room-go/internal/jwtauth"
 	"chat-room-go/model"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,7 +43,7 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := jwtauth.GenToken(dbUser.Username, fmt.Sprintf("%d", dbUser.ID))
+	tokenString, err := jwtauth.GenToken(dbUser.Username, dbUser.ID)
 	if err != nil {
 		response.MakeFail(c, "生成Token失败")
 		return

@@ -5,11 +5,11 @@ import (
 	"github.com/bwmarrin/snowflake"
 )
 
-func GetSnowflakeID() int64 {
+func GetSnowflakeID() string {
 	node, err := snowflake.NewNode(1)
 	if err != nil {
 		fmt.Println(err)
-		return 0
+		return ""
 	}
-	return node.Generate().Int64()
+	return node.Generate().String()
 }

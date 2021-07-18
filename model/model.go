@@ -12,7 +12,7 @@ var (
 
 // Model base
 type Model struct {
-	ID        int64  `json:"id" gorm:"primary_key;not null"`
+	ID        string `json:"id" gorm:"primary_key;not null"`
 	CreatedAt string `json:"created_at"`
 }
 
