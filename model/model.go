@@ -12,7 +12,7 @@ var (
 
 // Model base
 type Model struct {
-	ID        int64  `json:"id" gorm:"primary_key;not null"`
+	ID        string `json:"id" gorm:"primary_key;not null"`
 	CreatedAt string `json:"created_at"`
 }
 
@@ -45,6 +45,6 @@ func InitDBTable() {
 	//开启日志
 	db.LogMode(true)
 	//模型绑定
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}, &Room{}, &Message{})
 
 }
