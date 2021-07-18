@@ -39,3 +39,23 @@ Content-Type: application/json
   "pageIndex": 0,
   "pageSize": 100
 }
+
+###############
+
+POST http://127.0.0.1:8080/message/send
+Content-Type: application/json
+
+{
+  "id": "1232134534532432",
+  "text": "你好呀！"
+}
+
+
+###############
+POST http://127.0.0.1:8080//message/retrieve
+Content-Type: application/json
+
+{
+  "pageIndex": 0,
+  "pageSize": 100
+}

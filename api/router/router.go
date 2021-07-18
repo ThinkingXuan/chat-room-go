@@ -32,10 +32,10 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	// message router
-	message := e.Group("/", middleware.JWTAuth())
+	message := e.Group("/")
 	{
-		message.POST("/message/send")     // After enter a room, the user can send the message to the current room.
-		message.POST("/message/retrieve") // After enter a room, the user can retrieve the message in the current room
+		message.POST("/message/send", handlers.SendMessage)        // After enter a room, the user can send the message to the current room.
+		message.POST("/message/retrieve", handlers.GetMessageList) // After enter a room, the user can retrieve the message in the current room
 	}
 
 	return e
