@@ -21,18 +21,18 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		user.GET("/user/:username", handlers.GetUser, middleware.JWTAuth()) // Get user by user name
 	}
 	// room router
-	room := e.Group("/")
+	room := e.Group("/", middleware.JWTAuth())
 	{
-		room.POST("/room", handlers.CreateRoom)            // Create a new room
-		room.PUT("/room/:roomid/enter")                    // Enter a room
-		room.PUT("/roomLeave")                             // Leave a root
-		room.GET("/room/:roomid", handlers.GetOneRoomInfo) // Get the room info
-		room.GET("/room/:roomid/users")                    // Get user list in a room, only username in list
-		room.POST("/roomList", handlers.GetRoomList)       // Get the room list
+		room.POST("/room", handlers.CreateRoom)               // Create a new room
+		room.PUT("/room/:roomid/enter", handlers.EnterRoom)   // Enter a room
+		room.PUT("/roomLeave", handlers.LeaveRoom)            // Leave a root
+		room.GET("/room/:roomid", handlers.GetOneRoomInfo)    // Get the room info
+		room.GET("/room/:roomid/users", handlers.RoomAllUser) // Get user list in a room, only username in list
+		room.POST("/roomList", handlers.GetRoomList)          // Get the room list
 	}
 
 	// message router
-	message := e.Group("/")
+	message := e.Group("/", middleware.JWTAuth())
 	{
 		message.POST("/message/send", handlers.SendMessage)        // After enter a room, the user can send the message to the current room.
 		message.POST("/message/retrieve", handlers.GetMessageList) // After enter a room, the user can retrieve the message in the current room

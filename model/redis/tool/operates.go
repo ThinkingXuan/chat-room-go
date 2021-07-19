@@ -1,4 +1,4 @@
-package redis
+package tool
 
 import (
 	"errors"
@@ -113,10 +113,6 @@ func (r *RRedis) PutNoWait(key string, value string) (int, error) {
 	rc := r.getRedisConn()
 	defer rc.Close()
 
-	if r.Full(key) {
-		return -1, nil
-	}
-
 	res, err := redis.Int(rc.Do("RPUSH", key, value))
 	if err != nil {
 		return 0, err
@@ -152,11 +148,102 @@ func (r *RRedis) Empty(key string) bool {
 	return false
 }
 
-func (r *RRedis) Full(key string) bool {
+func (r *RRedis) HPut(key string, field string, value interface{}) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
 
-	if r.maxSize != 0 && r.QSize(key) >= r.maxSize {
-		return true
+	res, err := redis.Int(rc.Do("HSET", key, field, value))
+	if err != nil {
+		return 0, err
 	}
+	return res, nil
+}
 
-	return false
+func (r *RRedis) HGet(key string, field string) (interface{}, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.String(rc.Do("HGET", key, field))
+
+	if err != nil {
+		return "", err
+	}
+	return res, nil
+}
+
+func (r *RRedis) HDel(key string, field string) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Int(rc.Do("HDEL", key, field))
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func (r *RRedis) HExists(key string, field string) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Int(rc.Do("HEXISTS", key, field))
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func (r *RRedis) SPut(key string, value interface{}) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Int(rc.Do("SADD", key, value))
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func (r *RRedis) SDel(key string, value string) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Int(rc.Do("SREM", key, value))
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func (r *RRedis) SExists(key string, value string) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Int(rc.Do("SISMEMBER", key, value))
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func (r *RRedis) SLen(key string) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Int(rc.Do("SCARD", key))
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func (r *RRedis) SGetAll(key string) ([]string, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Strings(rc.Do("SMEMBERS", key))
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

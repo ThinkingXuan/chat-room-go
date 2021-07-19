@@ -1,4 +1,4 @@
-package redis
+package tool
 
 import (
 	"github.com/garyburd/redigo/redis"
@@ -22,12 +22,31 @@ type ListInterface interface {
 	PutNoWait(key string, value string) (int, error)
 	QSize(key string) int
 	Empty(key string) bool
-	Full(key string) bool
+	//Full(key string) bool
+}
+
+// HashInterface 操作hash的接口
+type HashInterface interface {
+	HPut(key string, field string, value interface{}) (int, error)
+	HGet(key string, field string) (interface{}, error)
+	HDel(key string, field string) (int, error)
+	HExists(key string, field string) (int, error)
+}
+
+// SETInterface 操作SET的接口
+type SETInterface interface {
+	SPut(key string, value interface{}) (int, error)
+	SDel(key string, value string) (int, error)
+	SExists(key string, value string) (int, error)
+	SLen(key string) (int, error)
+	SGetAll(key string) ([]string, error)
 }
 
 // RedisInterface  redis所有操作的接口
 type RedisInterface interface {
 	ListInterface
+	HashInterface
+	SETInterface
 }
 
 // NewRedis create a redis connect
