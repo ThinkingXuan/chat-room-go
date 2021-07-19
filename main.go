@@ -5,6 +5,7 @@ import (
 	"chat-room-go/api/router/middleware"
 	"chat-room-go/config"
 	"chat-room-go/model"
+	"chat-room-go/model/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/spf13/viper"
@@ -32,6 +33,12 @@ func main() {
 
 	//模型绑定
 	model.InitDBTable()
+
+	// 初始化 Redis
+	if err := redis.InitRedis(); err != nil {
+		glog.Error(err)
+		panic("Redis初始化失败")
+	}
 
 	//配置路由和中间件
 	r := router.Load(gin.New(), middleware.Cors)

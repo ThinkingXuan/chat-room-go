@@ -26,7 +26,7 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 
-	response.MakeSuccess(c, "success")
+	response.MakeSuccessString(c, "success")
 }
 
 // GetMessageList get message list
@@ -47,5 +47,5 @@ func GetMessageList(c *gin.Context) {
 		response.MakeFail(c, "查询错误")
 		return
 	}
-	response.MakeSuccess(c, messages)
+	response.MakeSuccessJSON(c, messages)
 }
