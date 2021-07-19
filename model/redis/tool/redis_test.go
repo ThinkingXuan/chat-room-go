@@ -107,7 +107,7 @@ func TestRRedis_SPut(t *testing.T) {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	v1, err := redisCLi.SPut("123123234244", "youxuan34543522")
+	v1, err := redisCLi.SPut("room", "youxuan34543522")
 	if err != nil {
 		t.Log(err)
 	}
@@ -120,7 +120,7 @@ func TestRRedis_SGetAll(t *testing.T) {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	v, err := redisCLi.SGetAll("123123234244")
+	v, err := redisCLi.SGetAll("room")
 	if err != nil {
 		t.Log(err)
 	}

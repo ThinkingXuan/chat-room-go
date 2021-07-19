@@ -5,11 +5,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	rsRoomKey     = viper.GetString("redis.room_key")
-	rsRoomUserKey = viper.GetString("redis.room_user_key")
-)
-
 /* Redis数据结构
 
 所有的房间列表rooms： set结构  			rooms: [roomID1,roomID2]
@@ -19,22 +14,27 @@ var (
 */
 
 // CreateRoom Redis create a room
-func CreateRoom(roomID string, roomName string) (int, error) {
-	return rs.SPut(rsRoomKey, roomID)
+func CreateRoom(roomID string) (int, error) {
+	rsRoomKey := viper.GetString("redis.room_key")
+	flag, err := rs.SPut(rsRoomKey, roomID)
+	return flag, err
 }
 
 // RoomExists room is exist
 func RoomExists(roomID string) (int, error) {
+	rsRoomKey := viper.GetString("redis.room_key")
 	return rs.SExists(rsRoomKey, roomID)
 }
 
 // UserExistRoom user is exists room
 func UserExistRoom(userName string) (int, error) {
+	rsRoomUserKey := viper.GetString("redis.room_user_key")
 	return rs.HExists(rsRoomUserKey, userName)
 }
 
 // EnterRoom user enter room
 func EnterRoom(roomID string, username string) (int, error) {
+	rsRoomUserKey := viper.GetString("redis.room_user_key")
 	// todo 需要事务控制
 	// 放入users列表
 	flag, err := rs.SPut(roomID, username)
@@ -49,6 +49,7 @@ func EnterRoom(roomID string, username string) (int, error) {
 
 // LeaveRoom user leave room
 func LeaveRoom(roomID string, username string) (int, error) {
+	rsRoomUserKey := viper.GetString("redis.room_user_key")
 	// todo 需要事务控制
 	// 清除users列表
 	flag, err := rs.SDel(roomID, username)
@@ -63,6 +64,7 @@ func LeaveRoom(roomID string, username string) (int, error) {
 
 // GetUserInRoom 获取当前用的所在的房间ID
 func GetUserInRoom(username string) (string, error) {
+	rsRoomUserKey := viper.GetString("redis.room_user_key")
 	roomID, err := rs.HGet(rsRoomUserKey, username)
 	return roomID.(string), err
 }

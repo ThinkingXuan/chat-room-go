@@ -20,7 +20,7 @@ func CreateUser(c *gin.Context) {
 		response.MakeFail(c, "添加失败")
 		return
 	}
-	response.MakeSuccess(c, "注册成功")
+	response.MakeSuccessString(c, "注册成功")
 }
 
 // UserLogin Logs user into the system handler
@@ -48,7 +48,7 @@ func UserLogin(c *gin.Context) {
 		response.MakeFail(c, "生成Token失败")
 		return
 	}
-	response.MakeSuccess(c, tokenString)
+	response.MakeSuccessString(c, tokenString)
 }
 
 // GetUser Get user by user name handler
@@ -63,5 +63,5 @@ func GetUser(c *gin.Context) {
 		response.MakeFail(c, "username error")
 		return
 	}
-	response.MakeSuccess(c, dbUser)
+	response.MakeSuccessJSON(c, dbUser)
 }
