@@ -8,7 +8,7 @@ import (
 // User user model
 type User struct {
 	Model
-	Username  string `json:"username,omitempty" gorm:"not null"`
+	Username  string `json:"username,omitempty" gorm:"unique;not null"`
 	FirstName string `json:"firstName,omitempty" gorm:"not null"`
 	LastName  string `json:"lastName,omitempty" gorm:"not null"`
 	Email     string `json:"email,omitempty" gorm:"not null"`

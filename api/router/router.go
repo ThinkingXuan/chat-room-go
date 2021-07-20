@@ -18,7 +18,7 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	{
 		user.POST("/user", handlers.CreateUser)                             // Create user
 		user.GET("/userLogin", handlers.UserLogin)                          // Logs user into the system
-		user.GET("/user/:username", handlers.GetUser, middleware.JWTAuth()) // Get user by user name
+		user.GET("/user/:username", middleware.JWTAuth(), handlers.GetUser) // Get user by user name
 	}
 	// room router
 	room := e.Group("/", middleware.JWTAuth())
