@@ -15,7 +15,7 @@ Content-Type: application/json
 ###############
 
 ###############
-GET http://127.0.0.1:8080/userLogin?username=string&password=string
+GET http://127.0.0.1:8080/userLogin?username=youxuan&password=string
 
 ###############
 GET http://127.0.0.1:8080/user/string
@@ -23,6 +23,7 @@ GET http://127.0.0.1:8080/user/string
 ###############
 POST http://127.0.0.1:8080/room
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InlvdXh1YW4iLCJpZCI6IjE0MTcxMjQ0MjIzMjE0NDI4MTYiLCJleHAiOjE2MjY3MTEzNDgsImlzcyI6ImRmcHAifQ.ci-b2muDXxW31Vi086wN0l_-rb4RhZIMojPzrwVfOXk
 
 {
   "name": "小胖的直播间"
@@ -44,18 +45,27 @@ Content-Type: application/json
 
 POST http://127.0.0.1:8080/message/send
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InlvdXh1YW4iLCJpZCI6IjE0MTcxMjQ0MjIzMjE0NDI4MTYiLCJleHAiOjE2MjY3MTEzNDgsImlzcyI6ImRmcHAifQ.ci-b2muDXxW31Vi086wN0l_-rb4RhZIMojPzrwVfOXk
 
 {
-  "id": "1232134534532432",
+  "id": "123223413werw4534532432",
   "text": "你好呀！"
 }
 
 
 ###############
-POST http://127.0.0.1:8080//message/retrieve
+POST http://127.0.0.1:8080/message/retrieve
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InlvdXh1YW4iLCJpZCI6IjE0MTcxMjQ0MjIzMjE0NDI4MTYiLCJleHAiOjE2MjY3MTEzNDgsImlzcyI6ImRmcHAifQ.ci-b2muDXxW31Vi086wN0l_-rb4RhZIMojPzrwVfOXk
 
 {
-  "pageIndex": 0,
+  "pageIndex": -1,
   "pageSize": 100
 }
+###############
+PUT http://127.0.0.1:8080/roomLeave
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InlvdXh1YW4iLCJpZCI6IjE0MTcxMjQ0MjIzMjE0NDI4MTYiLCJleHAiOjE2MjY3MTEzNDgsImlzcyI6ImRmcHAifQ.ci-b2muDXxW31Vi086wN0l_-rb4RhZIMojPzrwVfOXk
+
+###############
+PUT http://127.0.0.1:8080/room/1417134000232730624/enter
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InlvdXh1YW4iLCJpZCI6IjE0MTcxMjQ0MjIzMjE0NDI4MTYiLCJleHAiOjE2MjY3MTEzNDgsImlzcyI6ImRmcHAifQ.ci-b2muDXxW31Vi086wN0l_-rb4RhZIMojPzrwVfOXk

@@ -12,7 +12,7 @@ import (
 
 // CreateRoom Create a room
 func CreateRoom(c *gin.Context) {
-	username := c.MustGet("username").(string)
+	//username := c.MustGet("username").(string)
 	var reqRoom rr.ReqRoom
 	if err := c.ShouldBind(&reqRoom); err != nil {
 		response.MakeFail(c, "参数错误")
@@ -23,16 +23,16 @@ func CreateRoom(c *gin.Context) {
 		return
 	}
 
-	// 判断此用户是否已在房间中
-	flag, _ := redis.UserExistRoom(username)
-	if flag == 1 { // 在房间中,离开
-		//获取所在房间的ID
-		oldRoomID, _ := redis.GetUserInRoom(username)
-		_, err := redis.LeaveRoom(oldRoomID, username)
-		if err != nil {
-			response.MakeFail(c, "leave Room failure")
-		}
-	}
+	//// 判断此用户是否已在房间中
+	//flag, _ := redis.UserExistRoom(username)
+	//if flag == 1 { // 在房间中,离开
+	//	//获取所在房间的ID
+	//	oldRoomID, _ := redis.GetUserInRoom(username)
+	//	_, err := redis.LeaveRoom(oldRoomID, username)
+	//	if err != nil {
+	//		response.MakeFail(c, "leave Room failure")
+	//	}
+	//}
 
 	// create a room id
 	roomID := util.GetSnowflakeID()
@@ -45,12 +45,12 @@ func CreateRoom(c *gin.Context) {
 	}
 
 	// 进入房间
-	flag, err = redis.EnterRoom(roomID, username)
-	if err != nil || flag != 1 {
-		fmt.Println(err, flag)
-		response.MakeFail(c, "enter Room failure")
-		return
-	}
+	//flag, err = redis.EnterRoom(roomID, username)
+	//if err != nil || flag != 1 {
+	//	fmt.Println(err, flag)
+	//	response.MakeFail(c, "enter Room failure")
+	//	return
+	//}
 	// write to mysql
 	room, err := model.CreateRoom(roomID, reqRoom.Name)
 	if err != nil {

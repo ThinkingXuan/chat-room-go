@@ -3,6 +3,7 @@ package middleware
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/internal/jwtauth"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -21,8 +22,12 @@ func JWTAuth() func(c *gin.Context) {
 			return
 		}
 
+		fmt.Println(authHeader)
 		// 获取token
 		parts := strings.SplitN(authHeader, " ", 2)
+		fmt.Println(parts)
+		fmt.Println(len(parts), parts[0] == "Bearer")
+
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
 			response.MakeFail(c, "请求头中auth格式有误")
 			c.Abort()

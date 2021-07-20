@@ -8,7 +8,8 @@ import (
 
 type Message struct {
 	Model
-	Text string `json:"text,omitempty" gorm:"not null"`
+	Text   string `json:"text,omitempty" gorm:"not null"`
+	RoomID string `json:"room_id" gorm:"not null"`
 }
 
 // CreateMessage create a message
@@ -18,6 +19,7 @@ func CreateMessage(reqMsg *rr.ReqMessage) error {
 	}
 	msg.ID = reqMsg.ID
 	msg.CreatedAt = util.GetNowTimeUnixNanoString()
+	msg.RoomID = reqMsg.RoomID
 
 	err := db.Model(&Message{}).Create(msg).Error
 	if err != nil {
@@ -27,9 +29,11 @@ func CreateMessage(reqMsg *rr.ReqMessage) error {
 	return nil
 }
 
-func SelectMessageListPage(index, size int) (message []rr.ResMessage, err error) {
+func SelectMessageListPage(roomID string, index, size int) (message []rr.ResMessage, err error) {
 	err = db.Table("message").
-		Order("created_at Desc").
+		Select("id, text, created_at as timestamp").
+		Where("room_id = ?", roomID).
+		Order("timestamp Desc").
 		Offset(util.IndexToPage(index, size)).
 		Limit(size).
 		Scan(&message).Error

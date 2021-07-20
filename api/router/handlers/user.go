@@ -56,6 +56,7 @@ func GetUser(c *gin.Context) {
 	username := c.Param("username")
 	if len(username) <= 0 {
 		response.MakeFail(c, "参数错误")
+		return
 	}
 	// 查询用户是否存在
 	dbUser, affectRow := model.SelectResUserByUsername(username)
