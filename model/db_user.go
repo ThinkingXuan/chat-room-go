@@ -2,22 +2,23 @@ package model
 
 import (
 	"chat-room-go/api/router/rr"
-	"chat-room-go/util"
+	"github.com/golang/glog"
 )
 
 // User user model
 type User struct {
 	Model
-	Username  string `json:"username,omitempty" gorm:"unique;not null"`
-	FirstName string `json:"firstName,omitempty" gorm:"not null"`
-	LastName  string `json:"lastName,omitempty" gorm:"not null"`
-	Email     string `json:"email,omitempty" gorm:"not null"`
-	Password  string `json:"password,omitempty" gorm:"not null"`
-	Phone     string `json:"phone,omitempty" gorm:"not null"`
+	Username  string `json:"username,omitempty" gorm:"unique;not null;type:varchar(100);"`
+	FirstName string `json:"firstName,omitempty" gorm:"not null;type:varchar(20)"`
+	LastName  string `json:"lastName,omitempty" gorm:"not null;type:varchar(20)"`
+	Email     string `json:"email,omitempty" gorm:"not null;type:varchar(20)"`
+	Password  string `json:"password,omitempty" gorm:"not null;type:varchar(100)"`
+	Phone     string `json:"phone,omitempty" gorm:"not null;type:varchar(20)"`
 }
 
 // CreateUser create a user
 func CreateUser(newUser *rr.ReqUser) error {
+
 	user := &User{
 		Username:  newUser.Username,
 		FirstName: newUser.FirstName,
@@ -26,9 +27,19 @@ func CreateUser(newUser *rr.ReqUser) error {
 		Password:  newUser.Password,
 		Phone:     newUser.Phone,
 	}
-	user.ID = util.GetSnowflakeID()
-	user.CreatedAt = util.GetNowTime()
-	return db.Model(User{}).Create(user).Error
+	//sql := "insert into user(`id`,`created_at`,`username`,`first_name`,`last_name`,`email`,`password`,`phone`) values(?,?,?,?,?,?,?,?);"
+	//err := db.Exec(sql, user.ID, user.CreatedAt, user.Username, user.FirstName, user.LastName, user.Email, user.Password, user.Phone).Error
+	//if err != nil {
+	//	glog.Error(err)
+	//	return err
+	//}
+
+	err := db.Model(&User{}).Create(user).Error
+	if err != nil {
+		glog.Error(err)
+		return err
+	}
+	return nil
 }
 
 func SelectUserByUsername(username string) (*User, int64) {

@@ -20,7 +20,7 @@ func CreateUser(c *gin.Context) {
 		response.MakeFail(c, "添加失败")
 		return
 	}
-	response.MakeSuccessString(c, "注册成功")
+	response.MakeSuccessString(c, "successful operation")
 }
 
 // UserLogin Logs user into the system handler
@@ -43,7 +43,7 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := jwtauth.GenToken(dbUser.Username, dbUser.ID)
+	tokenString, err := jwtauth.GenToken(dbUser.Username)
 	if err != nil {
 		response.MakeFail(c, "生成Token失败")
 		return
