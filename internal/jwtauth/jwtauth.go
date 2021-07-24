@@ -13,12 +13,11 @@ import (
 // 如果想要保存更多信息，都可以添加到这个结构体中
 type MyClaims struct {
 	Username string `json:"username"`
-	ID       string `json:"id"`
 	jwt.StandardClaims
 }
 
 // GenToken 生成JWT
-func GenToken(userAccount string, userId string) (string, error) {
+func GenToken(userAccount string) (string, error) {
 	//过期时间 2小时
 	var TokenExpireDuration = time.Second * time.Duration(viper.GetInt("jwt.timeout")) * 2
 
@@ -27,7 +26,6 @@ func GenToken(userAccount string, userId string) (string, error) {
 
 	c := MyClaims{
 		userAccount, // 自定义字段
-		userId,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(), // 过期时间
 			Issuer:    "dfpp",                                     // 签发人

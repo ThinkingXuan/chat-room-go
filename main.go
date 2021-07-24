@@ -2,13 +2,14 @@ package main
 
 import (
 	"chat-room-go/api/router"
-	"chat-room-go/api/router/middleware"
 	"chat-room-go/config"
 	"chat-room-go/model"
 	"chat-room-go/model/redis"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/spf13/viper"
+	"strconv"
 )
 
 var cfgPath = "config/conf/config.yaml"
@@ -31,8 +32,13 @@ func main() {
 	}
 	defer model.Close()
 
+	maxOpenConn, _ := strconv.Atoi(viper.GetString("gorm.max_open_conn"))
+	maxIdleConn, _ := strconv.Atoi(viper.GetString("gorm.max_idle_conn"))
+	fmt.Println(maxOpenConn)
+	fmt.Println(maxIdleConn)
+
 	//模型绑定
-	model.InitDBTable()
+	model.InitDBTable(maxOpenConn, maxIdleConn)
 
 	// 初始化 Redis
 	if err := redis.InitRedis(); err != nil {
@@ -41,7 +47,7 @@ func main() {
 	}
 
 	//配置路由和中间件
-	r := router.Load(gin.New(), middleware.Cors)
+	r := router.Load(gin.New())
 
 	// 运行gin服务
 	if err := r.Run(viper.GetString("url")); err != nil {

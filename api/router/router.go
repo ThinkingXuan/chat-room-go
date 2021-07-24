@@ -9,26 +9,26 @@ import (
 // Load load the middlewares, routers
 func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// use middlewares
-	e.Use(gin.Recovery())
-	e.Use(gin.Logger())
+	//e.Use(gin.Recovery())
+	//e.Use(gin.Logger())
 	e.Use(mw...)
 
 	// user router
 	user := e.Group("/")
 	{
-		user.POST("/user", handlers.CreateUser)                             // Create user
-		user.GET("/userLogin", handlers.UserLogin)                          // Logs user into the system
-		user.GET("/user/:username", middleware.JWTAuth(), handlers.GetUser) // Get user by user name
+		user.POST("/user", handlers.CreateUser)       // Create user
+		user.GET("/userLogin", handlers.UserLogin)    // Logs user into the system
+		user.GET("/user/:username", handlers.GetUser) // Get user by user name
 	}
 	// room router
-	room := e.Group("/", middleware.JWTAuth())
+	room := e.Group("/")
 	{
-		room.POST("/room", handlers.CreateRoom)               // Create a new room
-		room.PUT("/room/:roomid/enter", handlers.EnterRoom)   // Enter a room
-		room.PUT("/roomLeave", handlers.LeaveRoom)            // Leave a root
-		room.GET("/room/:roomid", handlers.GetOneRoomInfo)    // Get the room info
-		room.GET("/room/:roomid/users", handlers.RoomAllUser) // Get user list in a room, only username in list
-		room.POST("/roomList", handlers.GetRoomList)          // Get the room list
+		room.POST("/room", handlers.CreateRoom)                                   // Create a new room
+		room.PUT("/room/:roomid/enter", middleware.JWTAuth(), handlers.EnterRoom) // Enter a room
+		room.PUT("/roomLeave", middleware.JWTAuth(), handlers.LeaveRoom)          // Leave a root
+		room.GET("/room/:roomid", handlers.GetOneRoomInfo)                        // Get the room info
+		room.GET("/room/:roomid/users", handlers.RoomAllUser)                     // Get user list in a room, only username in list
+		room.POST("/roomList", handlers.GetRoomList)                              // Get the room list
 	}
 
 	// message router

@@ -3,7 +3,6 @@ package middleware
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/internal/jwtauth"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -17,16 +16,13 @@ func JWTAuth() func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 
 		if authHeader == "" {
-			response.MakeFail(c, "请求头中auth为空")
+			response.MakeFail(c, "authorization is null")
 			c.Abort()
 			return
 		}
 
-		fmt.Println(authHeader)
 		// 获取token
 		parts := strings.SplitN(authHeader, " ", 2)
-		fmt.Println(parts)
-		fmt.Println(len(parts), parts[0] == "Bearer")
 
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
 			response.MakeFail(c, "请求头中auth格式有误")
@@ -43,7 +39,6 @@ func JWTAuth() func(c *gin.Context) {
 		}
 		// 将当前请求的信息保存到请求的上下文gin.context中
 		c.Set("username", mc.Username)
-		c.Set("userID", mc.ID)
 		c.Next() // 后续的处理函数可以用过c.Get("userAccount")来获取当前请求的用户信息
 	}
 }

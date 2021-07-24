@@ -14,7 +14,7 @@ import (
 func CreateRoom(c *gin.Context) {
 	//username := c.MustGet("username").(string)
 	var reqRoom rr.ReqRoom
-	if err := c.ShouldBind(&reqRoom); err != nil {
+	if err := c.ShouldBindJSON(&reqRoom); err != nil {
 		response.MakeFail(c, "参数错误")
 		return
 	}
@@ -35,7 +35,7 @@ func CreateRoom(c *gin.Context) {
 	//}
 
 	// create a room id
-	roomID := util.GetSnowflakeID()
+	roomID := util.GetSnowflakeID2()
 
 	// write to redis
 	flag, err := redis.CreateRoom(roomID)
@@ -58,7 +58,7 @@ func CreateRoom(c *gin.Context) {
 		return
 	}
 
-	response.MakeSuccessString(c, room.ID)
+	response.MakeSuccessString(c, room.RoomID)
 }
 
 // GetOneRoomInfo Get a room information by roomID
@@ -109,7 +109,32 @@ func EnterRoom(c *gin.Context) {
 		return
 	}
 
-	// 判断此用户是否已在房间中
+	//// 判断房间是否存在
+	//flag, err := redis.RoomExists(roomID)
+	//if err != nil || flag != 1 {
+	//	response.MakeFail(c, "Invalid Room ID")
+	//	return
+	//}
+
+	////获取用户现在所在房间
+	//oldRoomID, _ := redis.GetUserInRoom(username)
+	//
+	//// 现在所在房间为要进入的房间
+	//if oldRoomID == roomID {
+	//	response.MakeFail(c, "user already in room")
+	//	return
+	//}
+	//
+	//// 现在所在房间不是要进入的房间
+	//if len(oldRoomID) > 0 {
+	//	// 离开房间
+	//	_, err := redis.LeaveRoom(oldRoomID, username)
+	//	if err != nil {
+	//		response.MakeFail(c, "leave Room failure")
+	//	}
+	//}
+
+	//// 判断此用户是否已在房间中
 	flag, _ := redis.UserExistRoom(username)
 	if flag == 1 { // 在房间中,离开
 		//获取所在房间的ID
@@ -119,7 +144,6 @@ func EnterRoom(c *gin.Context) {
 			response.MakeFail(c, "leave Room failure")
 		}
 	}
-
 	// 判断房间是否存在
 	flag, err := redis.RoomExists(roomID)
 	if err != nil || flag != 1 {
@@ -127,7 +151,7 @@ func EnterRoom(c *gin.Context) {
 		return
 	}
 
-	// 进入房间
+	// 进入此房间
 	flag, err = redis.EnterRoom(roomID, username)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "enter Room failure")
