@@ -2,7 +2,6 @@ package model
 
 import (
 	"chat-room-go/api/router/rr"
-	"github.com/golang/glog"
 )
 
 // User user model
@@ -27,16 +26,20 @@ func CreateUser(newUser *rr.ReqUser) error {
 		Password:  newUser.Password,
 		Phone:     newUser.Phone,
 	}
-	//sql := "insert into user(`id`,`created_at`,`username`,`first_name`,`last_name`,`email`,`password`,`phone`) values(?,?,?,?,?,?,?,?);"
-	//err := db.Exec(sql, user.ID, user.CreatedAt, user.Username, user.FirstName, user.LastName, user.Email, user.Password, user.Phone).Error
+
+	// 去重检测
+	//var oldUser User
+	//err := db.Table("user").Where("username = ?", newUser.Username).First(&oldUser).Error
 	//if err != nil {
-	//	glog.Error(err)
 	//	return err
+	//}
+	//
+	//if oldUser.Username == newUser.Username {
+	//	return errors.New("user exist")
 	//}
 
 	err := db.Model(&User{}).Create(user).Error
 	if err != nil {
-		glog.Error(err)
 		return err
 	}
 	return nil
