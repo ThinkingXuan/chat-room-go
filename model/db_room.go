@@ -28,6 +28,20 @@ func CreateRoom(roomID string, roomName string) (*Room, error) {
 	return room, nil
 }
 
+// CreateAsyncRoom create a room
+func CreateAsyncRoom(roomID string, roomName string) {
+	room := &Room{
+		Name: roomName,
+	}
+	room.RoomID = roomID
+	db.Model(&Room{}).Create(room)
+	//if err != nil {
+	//	glog.Error(err)
+	//	return nil, err
+	//}
+	//return room, nil
+}
+
 func SelectOneRoomByRootName(roomName string) (*rr.ResRoom, int64) {
 	var r rr.ResRoom
 	rowAffect := db.Table("room").Where("name = ?", roomName).First(&r).RowsAffected

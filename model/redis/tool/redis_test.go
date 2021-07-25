@@ -1,8 +1,11 @@
 package tool
 
 import (
+	"chat-room-go/util"
 	"fmt"
+	"github.com/garyburd/redigo/redis"
 	"github.com/magiconair/properties/assert"
+	"sync"
 	"testing"
 )
 
@@ -107,11 +110,16 @@ func TestRRedis_SPut(t *testing.T) {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	v1, err := redisCLi.SPut("room", "youxuan34543522")
-	if err != nil {
-		t.Log(err)
+	for i := 0; i < 1000000; i++ {
+		str := "youxuan" + util.GetSnowflakeID2()
+		v1, _ := redisCLi.SPut("users", str)
+		t.Log(v1)
 	}
-	t.Log(v1)
+	//v1, err := redisCLi.SPut("room", "youxuan34543522")
+	//if err != nil {
+	//	t.Log(err)
+	//}
+	//t.Log(v1)
 }
 
 func TestRRedis_SGetAll(t *testing.T) {
@@ -120,11 +128,47 @@ func TestRRedis_SGetAll(t *testing.T) {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	v, err := redisCLi.SGetAll("room")
-	if err != nil {
-		t.Log(err)
+	var wg sync.WaitGroup
+	wg.Add(50)
+
+	for i := 0; i < 50; i++ {
+		go getall(&wg, t, redisCLi)
 	}
-	t.Log(v)
+	wg.Wait()
+}
+
+func TestRRedis_SGetScanAll(t *testing.T) {
+	redisCLi, err := ProduceRedis("127.0.0.1", "6379", "123456", 0, 100, true)
+	if err != nil {
+		fmt.Println("redis连接错误！err>>>", err.Error())
+		return
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(50)
+	for i := 0; i < 50; i++ {
+		go getScanall(&wg, t, redisCLi)
+	}
+	wg.Wait()
+
+}
+
+func getall(wg *sync.WaitGroup, t *testing.T, res RedisInterface) {
+	_, err := res.SGetAll("users")
+	if err != nil {
+		fmt.Println(err)
+	}
+	//t.Log(v)
+	wg.Done()
+}
+
+func getScanall(wg *sync.WaitGroup, t *testing.T, res RedisInterface) {
+	_, err := res.SGETScanAll("users")
+	if err != nil {
+		fmt.Println(err)
+	}
+	//t.Log(v)
+	wg.Done()
 }
 
 func TestRRedis_SExists(t *testing.T) {
@@ -146,7 +190,7 @@ func TestRRedis_SLen(t *testing.T) {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	v, err := redisCLi.SLen("123123234244")
+	v, err := redisCLi.SLen("users")
 	if err != nil {
 		t.Log(err)
 	}
@@ -164,4 +208,29 @@ func TestRRedis_SDel(t *testing.T) {
 		t.Log(err)
 	}
 	t.Log(v)
+}
+
+func TestSScan(t *testing.T) {
+	dialOption := redis.DialPassword("123456")
+	c, err := redis.Dial("tcp", "localhost:6379", dialOption)
+	if err != nil {
+		fmt.Println("conn redis failed,", err)
+		return
+	}
+	fmt.Println("redis conn success")
+	defer c.Close()
+
+	//users := []string{}
+
+	s, _ := c.Do("SSCAN", "users", "1", "count", "3")
+	fmt.Printf("%T\n", s)
+	fmt.Printf("%T v:= %d\n", s.([]interface{})[0], s.([]interface{})[0].([]uint8)[0]-'0')
+	fmt.Printf("%T\n", s.([]interface{})[1])
+
+	//t, _ := redis.Ints(s.([]interface{})[0],nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 }

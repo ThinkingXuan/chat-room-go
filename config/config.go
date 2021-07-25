@@ -21,7 +21,7 @@ func InitConfig(cfgPath string) error {
 		return err
 	}
 
-	c.watchConfig()
+	//c.watchConfig()
 	return nil
 }
 

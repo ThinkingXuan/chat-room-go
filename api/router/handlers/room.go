@@ -6,7 +6,6 @@ import (
 	"chat-room-go/model"
 	"chat-room-go/model/redis"
 	"chat-room-go/util"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,28 +36,24 @@ func CreateRoom(c *gin.Context) {
 	// create a room id
 	roomID := util.GetSnowflakeID2()
 
-	// write to redis
+	// write to redis： crate a room list
 	flag, err := redis.CreateRoom(roomID)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "房间创建错误")
 		return
 	}
-
-	// 进入房间
-	//flag, err = redis.EnterRoom(roomID, username)
-	//if err != nil || flag != 1 {
-	//	fmt.Println(err, flag)
-	//	response.MakeFail(c, "enter Room failure")
-	//	return
-	//}
-	// write to mysql
-	room, err := model.CreateRoom(roomID, reqRoom.Name)
-	if err != nil {
+	//	write to redis： crate a room info
+	flag, err = redis.CreateRoomInfo(roomID, reqRoom.Name)
+	if err != nil || flag != 1 {
 		response.MakeFail(c, "房间创建错误")
 		return
 	}
 
-	response.MakeSuccessString(c, room.RoomID)
+	// response
+	response.MakeSuccessString(c, roomID)
+
+	//异步写入MySQL
+	go model.CreateAsyncRoom(roomID, reqRoom.Name)
 }
 
 // GetOneRoomInfo Get a room information by roomID
@@ -69,13 +64,12 @@ func GetOneRoomInfo(c *gin.Context) {
 		return
 	}
 
-	resRoom, affectRow := model.SelectOneRoomByRootID(roomID)
-	fmt.Println(resRoom)
-	if affectRow <= 0 {
+	roomName, err := redis.GetRoomInfo(roomID)
+	if len(roomName) <= 0 || err != nil {
 		response.MakeFail(c, "Invalid Room ID")
 		return
 	}
-	response.MakeSuccessString(c, resRoom.Name)
+	response.MakeSuccessString(c, roomName)
 }
 
 // GetRoomList Get room page list
@@ -134,21 +128,28 @@ func EnterRoom(c *gin.Context) {
 	//	}
 	//}
 
-	//// 判断此用户是否已在房间中
-	flag, _ := redis.UserExistRoom(username)
-	if flag == 1 { // 在房间中,离开
-		//获取所在房间的ID
-		oldRoomID, _ := redis.GetUserInRoom(username)
-		_, err := redis.LeaveRoom(oldRoomID, username)
-		if err != nil {
-			response.MakeFail(c, "leave Room failure")
-		}
-	}
 	// 判断房间是否存在
 	flag, err := redis.RoomExists(roomID)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "Invalid Room ID")
 		return
+	}
+
+	//获取所在房间的ID
+	oldRoomID, _ := redis.GetUserInRoom(username)
+
+	// 现在所在房间为要进入的房间
+	if oldRoomID == roomID {
+		response.MakeSuccessString(c, "enter the Room success")
+		return
+	}
+	// 现在所在房间为不是自己要进入的房间
+	if len(oldRoomID) > 0 {
+		// 离开房间
+		_, err := redis.LeaveRoom(oldRoomID, username)
+		if err != nil {
+			response.MakeFail(c, "leave Room failure")
+		}
 	}
 
 	// 进入此房间
@@ -165,15 +166,20 @@ func LeaveRoom(c *gin.Context) {
 	username := c.MustGet("username").(string)
 
 	// 判断此用户是否已在房间中
-	flag, err := redis.UserExistRoom(username)
-	if err != nil || flag != 1 {
-		response.MakeFail(c, "leave Room failure")
-		return
-	}
+	//flag, err := redis.UserExistRoom(username)
+	//if err != nil || flag != 1 {
+	//	response.MakeFail(c, "leave Room failure")
+	//	return
+	//}
 
 	//获取所在房间的ID
 	oldRoomID, _ := redis.GetUserInRoom(username)
-	flag, err = redis.LeaveRoom(oldRoomID, username)
+	// 用户不在房间
+	if len(oldRoomID) < 0 {
+		response.MakeFail(c, "leave Room failure")
+		return
+	}
+	flag, err := redis.LeaveRoom(oldRoomID, username)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "leave Room failure")
 		return
@@ -190,14 +196,14 @@ func RoomAllUser(c *gin.Context) {
 		return
 	}
 	// 房间是否存在
-	flag, err := redis.RoomExists(roomID)
-	if err != nil || flag != 1 {
-		response.MakeFail(c, "Invalid Room ID")
-		return
-	}
+	//flag, err := redis.RoomExists(roomID)
+	//if err != nil || flag != 1 {
+	//	response.MakeFail(c, "Invalid Room ID")
+	//	return
+	//}
 
 	roomUser, err := redis.GetRoomAllUser(roomID)
-	if err != nil {
+	if err != nil || len(roomUser) < 0 {
 		response.MakeFail(c, "get users failure")
 	}
 

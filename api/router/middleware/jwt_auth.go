@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"chat-room-go/api/router/response"
-	"chat-room-go/internal/jwtauth"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -31,14 +30,14 @@ func JWTAuth() func(c *gin.Context) {
 		}
 
 		token := parts[1]
-		mc, err := jwtauth.ParseToken(token)
-		if err != nil {
-			response.MakeFail(c, "登录已过期，请重新登录")
-			c.Abort()
-			return
-		}
+		//mc, err := jwtauth.ParseToken(token)
+		//if err != nil {
+		//	response.MakeFail(c, "登录已过期，请重新登录")
+		//	c.Abort()
+		//	return
+		//}
 		// 将当前请求的信息保存到请求的上下文gin.context中
-		c.Set("username", mc.Username)
+		c.Set("username", token)
 		c.Next() // 后续的处理函数可以用过c.Get("userAccount")来获取当前请求的用户信息
 	}
 }

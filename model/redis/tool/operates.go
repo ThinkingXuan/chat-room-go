@@ -2,6 +2,7 @@ package tool
 
 import (
 	"errors"
+	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"math"
 	"time"
@@ -241,9 +242,38 @@ func (r *RRedis) SGetAll(key string) ([]string, error) {
 	rc := r.getRedisConn()
 	defer rc.Close()
 
+	// 数据量在百万以下，换成sscan并不能体现优势
 	res, err := redis.Strings(rc.Do("SMEMBERS", key))
 	if err != nil {
 		return nil, err
+	}
+
+	return res, nil
+}
+
+func (r *RRedis) SGETScanAll(key string) ([]string, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	var res []string
+	iter := 0
+	for {
+		// SSCAN key cursor [MATCH pattern] [COUNT count]
+		// cursor - 游标。 每次查询会自动返回下次查询的游标
+		// pattern - 匹配的模式。
+		// count - 指定从数据集里返回多少元素，默认值为 10 。
+		arr, err := redis.Values(rc.Do("SSCAN", key, iter, "count", 1000))
+		if err != nil {
+			return res, fmt.Errorf("error retrieving keys,%s", err)
+		}
+
+		iter, _ = redis.Int(arr[0], nil)
+		k, _ := redis.Strings(arr[1], nil)
+		res = append(res, k...)
+
+		if iter == 0 {
+			break
+		}
 	}
 	return res, nil
 }

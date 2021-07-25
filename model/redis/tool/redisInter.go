@@ -40,6 +40,7 @@ type SETInterface interface {
 	SExists(key string, value string) (int, error)
 	SLen(key string) (int, error)
 	SGetAll(key string) ([]string, error)
+	SGETScanAll(key string) ([]string, error)
 }
 
 // RedisInterface  redis所有操作的接口
@@ -63,8 +64,8 @@ func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) 
 
 	// 要求RRedis结构体实现返回的接口中所有的方法！
 	redisObj := &RRedis{
-		maxIdle:        100,
-		maxActive:      130,
+		maxIdle:        550,
+		maxActive:      600,
 		maxIdleTimeout: time.Duration(60) * time.Second,
 		maxTimeout:     time.Duration(30) * time.Second,
 		lazyLimit:      lazyLimit,

@@ -11,7 +11,13 @@ import (
 一个房间中的用户列表users：set结构 		roomID: [username1, username2]
 用户与房间的对应关系：hashmap结构   room_user : username1: roomID
 
+房间ID与房间名： hashmap结构      room_info: room_id: room_name
+
 */
+
+var (
+	RoomInfoKey = "room_info"
+)
 
 // CreateRoom Redis create a room
 func CreateRoom(roomID string) (int, error) {
@@ -72,4 +78,16 @@ func GetUserInRoom(username string) (string, error) {
 // GetRoomAllUser 获取此房间所有用户
 func GetRoomAllUser(roomID string) ([]string, error) {
 	return rs.SGetAll(roomID)
+}
+
+// CreateRoomInfo 插入房间信息
+func CreateRoomInfo(roomID string, roomName string) (int, error) {
+	flag, err := rs.HPut(RoomInfoKey, roomID, roomName)
+	return flag, err
+}
+
+// GetRoomInfo 获取房间信息
+func GetRoomInfo(roomID string) (string, error) {
+	roomName, err := rs.HGet(RoomInfoKey, roomID)
+	return roomName.(string), err
 }
