@@ -3,7 +3,6 @@ package handlers
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
-	"chat-room-go/model"
 	"chat-room-go/model/redis"
 	"chat-room-go/util"
 	"github.com/gin-gonic/gin"
@@ -14,7 +13,7 @@ func CreateRoom(c *gin.Context) {
 	//username := c.MustGet("username").(string)
 	var reqRoom rr.ReqRoom
 	if err := c.ShouldBindJSON(&reqRoom); err != nil {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 	if len(reqRoom.Name) <= 0 {
@@ -36,31 +35,38 @@ func CreateRoom(c *gin.Context) {
 	// create a room id
 	roomID := util.GetSnowflakeID2()
 
-	// write to redis： crate a room list
-	flag, err := redis.CreateRoom(roomID)
+	// write to redis： crate a room zset
+	flag, err := redis.CreateRoom(roomID, reqRoom.Name)
 	if err != nil || flag != 1 {
-		response.MakeFail(c, "房间创建错误")
+		response.MakeFail(c, "create room err")
 		return
 	}
 	//	write to redis： crate a room info
 	flag, err = redis.CreateRoomInfo(roomID, reqRoom.Name)
 	if err != nil || flag != 1 {
-		response.MakeFail(c, "房间创建错误")
+		response.MakeFail(c, "create room err")
 		return
 	}
+
+	//_, err = model.CreateRoom(roomID, reqRoom.Name)
+	//if err != nil {
+	//	response.MakeFail(c, "create room err")
+	//	return
+	//}
 
 	// response
 	response.MakeSuccessString(c, roomID)
 
 	//异步写入MySQL
-	go model.CreateAsyncRoom(roomID, reqRoom.Name)
+	//pool.Work(roomID, reqRoom.Name)
+	//go model.CreateAsyncRoom(roomID, reqRoom.Name)
 }
 
 // GetOneRoomInfo Get a room information by roomID
 func GetOneRoomInfo(c *gin.Context) {
 	roomID := c.Param("roomid")
 	if len(roomID) <= 0 {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
@@ -76,18 +82,18 @@ func GetOneRoomInfo(c *gin.Context) {
 func GetRoomList(c *gin.Context) {
 	var reqPage rr.ReqPage
 	if err := c.ShouldBindJSON(&reqPage); err != nil {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
 	if reqPage.PageSize < 0 || reqPage.PageIndex < 0 {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
-	rooms, err := model.SelectRoomListPage(reqPage.PageIndex, reqPage.PageSize)
+	rooms, err := redis.SelectRoomListPage(reqPage.PageIndex, reqPage.PageSize)
 	if err != nil {
-		response.MakeFail(c, "查询错误")
+		response.MakeFail(c, "select err")
 		return
 	}
 	response.MakeSuccessJSON(c, rooms)

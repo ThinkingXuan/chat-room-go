@@ -3,8 +3,8 @@ package handlers
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
-	"chat-room-go/model"
 	"chat-room-go/model/redis"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,12 +14,12 @@ func SendMessage(c *gin.Context) {
 
 	var reqMsg rr.ReqMessage
 	if err := c.ShouldBind(&reqMsg); err != nil {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
 	if len(reqMsg.ID) <= 0 {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
@@ -30,13 +30,19 @@ func SendMessage(c *gin.Context) {
 	}
 	reqMsg.RoomID = roomID
 
-	err = model.CreateMessage(&reqMsg)
-	if err != nil {
-		response.MakeFail(c, "插入错误")
+	flag, err := redis.CreateMessage(&reqMsg)
+	fmt.Println(flag, err)
+	if err != nil || flag != 1 {
+		response.MakeFail(c, "insert err")
 		return
 	}
 
 	response.MakeSuccessString(c, "success")
+
+	//go model.CreateSyncMessage(&reqMsg)
+
+	// 异步发送信息
+	//pool.WorkSendMessage(&reqMsg)
 }
 
 // GetMessageList get message list
@@ -45,17 +51,17 @@ func GetMessageList(c *gin.Context) {
 
 	var reqPage rr.ReqPage
 	if err := c.ShouldBindJSON(&reqPage); err != nil {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
 	if reqPage.PageIndex >= 0 {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
 	if reqPage.PageSize < 0 {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
@@ -65,9 +71,9 @@ func GetMessageList(c *gin.Context) {
 		return
 	}
 
-	messages, err := model.SelectMessageListPage(roomID, reqPage.PageIndex, reqPage.PageSize)
+	messages, err := redis.SelectMessageListPage(roomID, reqPage.PageIndex, reqPage.PageSize)
 	if err != nil {
-		response.MakeFail(c, "查询错误")
+		response.MakeFail(c, "select err")
 		return
 	}
 	response.MakeSuccessJSON(c, messages)

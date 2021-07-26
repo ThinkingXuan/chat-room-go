@@ -31,6 +31,23 @@ func CreateMessage(reqMsg *rr.ReqMessage) error {
 	return nil
 }
 
+// CreateSyncMessage create a message
+func CreateSyncMessage(reqMsg *rr.ReqMessage) {
+	var msg = &Message{
+		Text: reqMsg.Text,
+	}
+	msg.MessageID = reqMsg.ID
+	msg.RoomID = reqMsg.RoomID
+
+	db.Model(&Message{}).Create(msg)
+	//if err != nil {
+	//	glog.Error(err)
+	//	return err
+	//}
+	//
+	//return nil
+}
+
 func SelectMessageListPage(roomID string, index, size int) (message []rr.ResMessage, err error) {
 
 	count := 0

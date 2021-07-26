@@ -7,15 +7,16 @@ import (
 )
 
 var s, _ = snow2.NewSnowflake(int64(0), int64(0))
+var node, _ = snowflake.NewNode(1)
 
 func GetSnowflakeID() string {
 
-	node, err := snowflake.NewNode(1)
-	if err != nil {
-		fmt.Println(err)
-		return ""
-	}
 	return node.Generate().String()
+}
+
+func GetSnowflakeInt() int64 {
+
+	return node.Generate().Int64()
 }
 
 func GetSnowflakeID2() string {

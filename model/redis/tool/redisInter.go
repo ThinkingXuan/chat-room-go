@@ -43,11 +43,19 @@ type SETInterface interface {
 	SGETScanAll(key string) ([]string, error)
 }
 
+// ZSETInterface 操作zset的接口
+type ZSETInterface interface {
+	ZsPUT(key string, score int64, value interface{}) (int, error)
+	ZsRange(key string, index, size int) ([]string, error)
+	ZsRevRange(key string, index, size int) ([]string, error)
+}
+
 // RedisInterface  redis所有操作的接口
 type RedisInterface interface {
 	ListInterface
 	HashInterface
 	SETInterface
+	ZSETInterface
 }
 
 // NewRedis create a redis connect

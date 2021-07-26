@@ -1,6 +1,7 @@
 package tool
 
 import (
+	"chat-room-go/util"
 	"errors"
 	"fmt"
 	"github.com/garyburd/redigo/redis"
@@ -274,6 +275,49 @@ func (r *RRedis) SGETScanAll(key string) ([]string, error) {
 		if iter == 0 {
 			break
 		}
+	}
+	return res, nil
+}
+
+// ZsPUT ZSet插入
+func (r *RRedis) ZsPUT(key string, score int64, value interface{}) (int, error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	res, err := redis.Int(rc.Do("ZADD", key, score, value))
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+// ZsRange ZSet分页遍历
+func (r *RRedis) ZsRange(key string, index, size int) (res []string, err error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+	// start index
+	start := util.IndexToPage(index, size)
+	// stop index
+	stop := start + size - 1
+	res, err = redis.Strings(rc.Do("ZRANGE", key, start, stop))
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// ZsRevRange ZSet分页倒序遍历
+func (r *RRedis) ZsRevRange(key string, index, size int) (res []string, err error) {
+
+	rc := r.getRedisConn()
+	defer rc.Close()
+	// start index
+	start := util.IndexToPage(index, size)
+	// stop index
+	stop := start + size - 1
+	res, err = redis.Strings(rc.Do("ZREVRANGE", key, start, stop))
+	if err != nil {
+		return nil, err
 	}
 	return res, nil
 }

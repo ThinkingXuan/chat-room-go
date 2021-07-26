@@ -1,13 +1,17 @@
 package redis
 
 import (
+	"chat-room-go/api/router/rr"
+	"chat-room-go/util"
+	"errors"
 	"github.com/golang/glog"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 /* Redis数据结构
 
-所有的房间列表rooms： set结构  			rooms: [roomID1,roomID2]
+所有的房间列表rooms： zset结构  			rooms: [roomID1#roomName1,roomID2#roomName2]
 一个房间中的用户列表users：set结构 		roomID: [username1, username2]
 用户与房间的对应关系：hashmap结构   room_user : username1: roomID
 
@@ -16,20 +20,21 @@ import (
 */
 
 var (
+	RoomsKey    = "rooms"
 	RoomInfoKey = "room_info"
 )
 
 // CreateRoom Redis create a room
-func CreateRoom(roomID string) (int, error) {
-	rsRoomKey := viper.GetString("redis.room_key")
-	flag, err := rs.SPut(rsRoomKey, roomID)
+func CreateRoom(roomID string, roomName string) (int, error) {
+	flag, err := rs.ZsPUT(RoomsKey, util.GetSnowflakeInt(), roomID+"#"+roomName)
 	return flag, err
 }
 
 // RoomExists room is exist
 func RoomExists(roomID string) (int, error) {
-	rsRoomKey := viper.GetString("redis.room_key")
-	return rs.SExists(rsRoomKey, roomID)
+	//rsRoomKey := viper.GetString("redis.room_key")
+	return rs.HExists(RoomInfoKey, roomID)
+	//return rs.SExists(rsRoomKey, roomID)
 }
 
 // UserExistRoom user is exists room
@@ -90,4 +95,20 @@ func CreateRoomInfo(roomID string, roomName string) (int, error) {
 func GetRoomInfo(roomID string) (string, error) {
 	roomName, err := rs.HGet(RoomInfoKey, roomID)
 	return roomName.(string), err
+}
+
+// SelectRoomListPage 分页获取房间列表
+func SelectRoomListPage(index, size int) (message []rr.ResRoom, err error) {
+
+	rooms, err := rs.ZsRange(RoomsKey, index, size)
+	resRoom := make([]rr.ResRoom, len(rooms))
+	for index, value := range rooms {
+		values := strings.Split(value, "#")
+		resRoom[index].ID = values[0]
+		resRoom[index].Name = values[1]
+	}
+	if len(resRoom) <= 0 || err != nil {
+		return nil, errors.New("over max page")
+	}
+	return resRoom, nil
 }

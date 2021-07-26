@@ -234,3 +234,31 @@ func TestSScan(t *testing.T) {
 	}
 
 }
+
+
+func TestZrange(t *testing.T) {
+	redisCLi, err := ProduceRedis("127.0.0.1", "6379", "123456", 0, 100, true)
+	if err != nil {
+		fmt.Println("redis连接错误！err>>>", err.Error())
+		return
+	}
+	v, err := redisCLi.ZsRange("zyou",2,10)
+	if err != nil {
+		t.Log(err)
+	}
+	t.Log(v)
+}
+
+func TestZRevrange(t *testing.T) {
+	redisCLi, err := ProduceRedis("127.0.0.1", "6379", "123456", 0, 100, true)
+	if err != nil {
+		fmt.Println("redis连接错误！err>>>", err.Error())
+		return
+	}
+	v, err := redisCLi.ZsRevRange("zyou",0,10)
+	if err != nil {
+		t.Log(err)
+	}
+	t.Log(v)
+}
+

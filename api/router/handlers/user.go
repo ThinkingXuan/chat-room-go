@@ -4,7 +4,6 @@ import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
 	"chat-room-go/model/redis"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +11,7 @@ import (
 func CreateUser(c *gin.Context) {
 	var reqUser rr.ReqUser
 	if err := c.ShouldBindJSON(&reqUser); err != nil {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 
@@ -25,8 +24,7 @@ func CreateUser(c *gin.Context) {
 
 	flag, err := redis.CreateUser(&reqUser)
 	if flag != 1 || err != nil {
-		fmt.Println(flag, err)
-		response.MakeFail(c, "添加失败")
+		response.MakeFail(c, "insert err")
 		return
 	}
 	response.MakeSuccessString(c, "successful operation")
@@ -62,7 +60,7 @@ func UserLogin(c *gin.Context) {
 func GetUser(c *gin.Context) {
 	username := c.Param("username")
 	if len(username) <= 0 {
-		response.MakeFail(c, "参数错误")
+		response.MakeFail(c, "param err")
 		return
 	}
 	// 查询用户是否存在
