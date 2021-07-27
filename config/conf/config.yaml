@@ -26,6 +26,9 @@ redis:
   room_key: room
   room_user_key: room_user
 
+  max_active_conn: 50
+  max_idle_conn: 49
+
 
 #### JWT ####
 jwt:

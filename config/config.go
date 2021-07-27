@@ -1,8 +1,6 @@
 package config
 
 import (
-	"github.com/fsnotify/fsnotify"
-	"github.com/golang/glog"
 	"github.com/spf13/viper"
 )
 
@@ -42,10 +40,10 @@ func (c *Config) setConfig() error {
 	return nil
 }
 
-// watchConifg watch conifg file change
-func (c *Config) watchConfig() {
-	viper.WatchConfig()
-	viper.OnConfigChange(func(in fsnotify.Event) {
-		glog.Infof("Config file changed: %s", in.Name)
-	})
-}
+//// watchConifg watch conifg file change
+//func (c *Config) watchConfig() {
+//	viper.WatchConfig()
+//	viper.OnConfigChange(func(in fsnotify.Event) {
+//		glog.Infof("Config file changed: %s", in.Name)
+//	})
+//}

@@ -3,6 +3,7 @@ package tool
 import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/spf13/viper"
+	"strconv"
 	"time"
 )
 
@@ -70,10 +71,13 @@ func NewRedis() (RedisInterface, error) {
 // 如果只想实现某一些方法，就返回"有这些方法的结构体"就好了
 func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) (RedisInterface, error) {
 
+	maxActive, _ := strconv.Atoi(viper.GetString("redis.max_active_conn"))
+	maxIdle, _ := strconv.Atoi(viper.GetString("redis.max_idle_conn"))
+
 	// 要求RRedis结构体实现返回的接口中所有的方法！
 	redisObj := &RRedis{
-		maxIdle:        550,
-		maxActive:      600,
+		maxIdle:        maxIdle,
+		maxActive:      maxActive,
 		maxIdleTimeout: time.Duration(60) * time.Second,
 		maxTimeout:     time.Duration(30) * time.Second,
 		lazyLimit:      lazyLimit,
