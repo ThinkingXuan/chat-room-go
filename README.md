@@ -1,6 +1,11 @@
 # chat-room-go
 🎨chat-room-go 简单聊天室go语言实现的🌮
 
+技术点：
+- Gin框架、Gorm框架、JWT验证
+- Redigo框架、Viper
+- MySQL、Redis数据库
+
 开发计划：
 ### 1. 完成项目基本框架搭建
 ### 2. 完善功能
