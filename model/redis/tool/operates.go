@@ -299,6 +299,11 @@ func (r *RRedis) ZsRange(key string, index, size int) (res []string, err error) 
 	start := util.IndexToPage(index, size)
 	// stop index
 	stop := start + size - 1
+
+	if stop < 0 {
+		return []string{}, nil
+	}
+
 	res, err = redis.Strings(rc.Do("ZRANGE", key, start, stop))
 	if err != nil {
 		return nil, err
@@ -315,6 +320,11 @@ func (r *RRedis) ZsRevRange(key string, index, size int) (res []string, err erro
 	start := util.IndexToPage(index, size)
 	// stop index
 	stop := start + size - 1
+
+	if stop < 0 {
+		return []string{}, nil
+	}
+
 	res, err = redis.Strings(rc.Do("ZREVRANGE", key, start, stop))
 	if err != nil {
 		return nil, err

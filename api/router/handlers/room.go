@@ -181,7 +181,7 @@ func LeaveRoom(c *gin.Context) {
 	//获取所在房间的ID
 	oldRoomID, _ := redis.GetUserInRoom(username)
 	// 用户不在房间
-	if len(oldRoomID) < 0 {
+	if len(oldRoomID) <= 0 {
 		response.MakeFail(c, "leave Room failure")
 		return
 	}
@@ -191,7 +191,6 @@ func LeaveRoom(c *gin.Context) {
 		return
 	}
 	response.MakeSuccessString(c, "left the room")
-	return
 }
 
 // RoomAllUser get room all user list
@@ -211,6 +210,7 @@ func RoomAllUser(c *gin.Context) {
 	roomUser, err := redis.GetRoomAllUser(roomID)
 	if err != nil || len(roomUser) < 0 {
 		response.MakeFail(c, "get users failure")
+		return
 	}
 
 	response.MakeSuccessJSON(c, roomUser)

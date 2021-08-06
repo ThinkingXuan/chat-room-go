@@ -2,7 +2,6 @@ package redis
 
 import (
 	"chat-room-go/api/router/rr"
-	"fmt"
 	"strings"
 )
 
@@ -17,7 +16,8 @@ var (
 
 // CreateUser Redis create a user
 func CreateUser(reqUser *rr.ReqUser) (int, error) {
-	userInfo := fmt.Sprintf("%s##%s##%s##%s##%s", reqUser.FirstName, reqUser.LastName, reqUser.Email, reqUser.Password, reqUser.Phone)
+	userInfo := reqUser.FirstName + "##" + reqUser.LastName + "##" + reqUser.Email + "##" + reqUser.Password + "##" + reqUser.Phone
+	//userInfo := fmt.Sprintf("%s##%s##%s##%s##%s", reqUser.FirstName, reqUser.LastName, reqUser.Email, reqUser.Password, reqUser.Phone)
 	flag, err := rs.HPut(UserKey, reqUser.Username, userInfo)
 	return flag, err
 }

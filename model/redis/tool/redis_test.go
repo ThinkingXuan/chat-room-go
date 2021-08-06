@@ -110,16 +110,41 @@ func TestRRedis_SPut(t *testing.T) {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 100000; i++ {
+
 		str := "youxuan" + util.GetSnowflakeID2()
-		v1, _ := redisCLi.SPut("users", str)
-		t.Log(v1)
+		redisCLi.SPut("users", str)
+		//t.Log(v1)
 	}
 	//v1, err := redisCLi.SPut("room", "youxuan34543522")
 	//if err != nil {
 	//	t.Log(err)
 	//}
 	//t.Log(v1)
+}
+
+func TestRRedis_SPut_Pipe(t *testing.T) {
+	//redisCLi, err := ProduceRedis("127.0.0.1", "6379", "123456", 0, 100, true)
+	//if err != nil {
+	//	fmt.Println("redis连接错误！err>>>", err.Error())
+	//	return
+	//}
+	//redisCLi.SPutPipe()
+
+	dialOption := redis.DialPassword("123456")
+	conn, err := redis.Dial("tcp", "localhost:6379", dialOption)
+	if err != nil {
+		fmt.Println("conn redis failed, err:", err)
+		return
+	}
+	defer conn.Close()
+
+	for i := 0; i < 1000000; i++ {
+
+		str := "youxuan" + util.GetSnowflakeID2()
+		conn.Do("SADD", "name", str)
+		//t.Log(v1)
+	}
 }
 
 func TestRRedis_SGetAll(t *testing.T) {
@@ -235,14 +260,13 @@ func TestSScan(t *testing.T) {
 
 }
 
-
 func TestZrange(t *testing.T) {
 	redisCLi, err := ProduceRedis("127.0.0.1", "6379", "123456", 0, 100, true)
 	if err != nil {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	v, err := redisCLi.ZsRange("zyou",2,10)
+	v, err := redisCLi.ZsRange("zyou", 2, 10)
 	if err != nil {
 		t.Log(err)
 	}
@@ -255,10 +279,9 @@ func TestZRevrange(t *testing.T) {
 		fmt.Println("redis连接错误！err>>>", err.Error())
 		return
 	}
-	v, err := redisCLi.ZsRevRange("zyou",0,10)
+	v, err := redisCLi.ZsRevRange("zyou", 0, 10)
 	if err != nil {
 		t.Log(err)
 	}
 	t.Log(v)
 }
-
