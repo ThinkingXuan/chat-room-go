@@ -1,4 +1,4 @@
-package model
+package mysql
 
 import (
 	"chat-room-go/api/router/rr"

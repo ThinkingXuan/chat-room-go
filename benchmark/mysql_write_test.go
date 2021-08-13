@@ -3,7 +3,7 @@ package benchmark
 import (
 	"chat-room-go/api/router/rr"
 	"chat-room-go/config"
-	"chat-room-go/model"
+	"chat-room-go/model/mysql"
 	"chat-room-go/util"
 	"fmt"
 	"github.com/golang/glog"
@@ -19,14 +19,14 @@ func initMy(x, y int) {
 		panic(err)
 	}
 	//初始化
-	if err := model.InitSQLite(); err != nil {
+	if err := mysql.InitSQLite(); err != nil {
 		glog.Error(err)
 		panic("数据库初始化失败")
 	}
 	//defer model.Close()
 
 	//模型绑定
-	model.InitDBTable(x, y)
+	mysql.InitDBTable(x, y)
 }
 
 func Write() {
@@ -38,7 +38,7 @@ func Write() {
 		Password:  "234324234",
 		Phone:     "234324",
 	}
-	err := model.CreateUser(req)
+	err := mysql.CreateUser(req)
 	if err != nil {
 		fmt.Println(err)
 	}

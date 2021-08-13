@@ -2,7 +2,7 @@ package pool
 
 import (
 	"chat-room-go/api/router/rr"
-	"chat-room-go/model"
+	"chat-room-go/model/mysql"
 	"sync"
 )
 
@@ -21,7 +21,7 @@ func Work(roomID, roomName string) {
 	wg.Add(1)
 	goPool.Put(&Task{
 		Handler: func(v ...interface{}) {
-			model.CreateAsyncRoom(roomID, roomName)
+			mysql.CreateAsyncRoom(roomID, roomName)
 			wg.Done()
 
 		},
@@ -34,7 +34,7 @@ func WorkSendMessage(req *rr.ReqMessage) {
 	wg.Add(1)
 	goPool.Put(&Task{
 		Handler: func(v ...interface{}) {
-			model.CreateSyncMessage(req)
+			mysql.CreateSyncMessage(req)
 			wg.Done()
 
 		},
