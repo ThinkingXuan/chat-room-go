@@ -4,7 +4,7 @@ import (
 	"chat-room-go/util"
 	"errors"
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 	"math"
 	"time"
 )

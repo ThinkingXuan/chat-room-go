@@ -3,7 +3,7 @@ package tool
 import (
 	"chat-room-go/util"
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 	"github.com/magiconair/properties/assert"
 	"sync"
 	"testing"

@@ -38,5 +38,11 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		message.POST("/message/retrieve", handlers.GetMessageList) // After enter a room, the user can retrieve the message in the current room
 	}
 
+	// cluster
+	cluster := e.Group("/")
+	{
+		cluster.POST("/updateCluster", handlers.UpdateCluster)
+		cluster.GET("/checkCluster", handlers.CheckCluster)
+	}
 	return e
 }
