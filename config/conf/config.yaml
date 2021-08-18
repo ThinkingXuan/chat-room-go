@@ -1,6 +1,6 @@
-runmode: release # 开发模式, debug, release, test
+runmode: debug # 开发模式, debug, release, test
 addr: 8080 # http绑定端口
-url: :8080
+url: :8081
 
 #### MySQL配置 ####
 mysql:
@@ -29,6 +29,11 @@ redis:
   max_active_conn: 200
   max_idle_conn: 180
 
+#### Redis sentinel配置 ####
+redis-sentinel:
+  port: 26379
+  master_name: mymaster
+  password: 123456
 
 #### JWT ####
 jwt:

@@ -1,6 +1,8 @@
 package tool
 
 import (
+	"fmt"
+	"github.com/FZambia/sentinel"
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"strconv"
@@ -67,6 +69,11 @@ func NewRedis() (RedisInterface, error) {
 	return ProduceRedis(host, port, password, 0, 100, true)
 }
 
+// NewRedisSentinel create a redis sentinel
+func NewRedisSentinel(hosts []string, masterName string, password string) (RedisInterface, error) {
+	return ProduceRedisSentinel(hosts, masterName, password, 0, 100, true)
+}
+
 // ProduceRedis 工厂函数，要求对应的结构体必须实现 RedisInterface 中的所有方法
 // 如果只想实现某一些方法，就返回"有这些方法的结构体"就好了
 func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) (RedisInterface, error) {
@@ -83,6 +90,8 @@ func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) 
 		lazyLimit:      lazyLimit,
 		maxSize:        maxSize,
 	}
+	//
+
 	// 建立连接池
 	redisObj.redisCli = &redis.Pool{
 		MaxIdle:     redisObj.maxIdle,
@@ -107,4 +116,76 @@ func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) 
 	}
 
 	return redisObj, nil
+}
+
+// ProduceRedisSentinel 工厂函数，要求对应的结构体必须实现 RedisInterface 中的所有方法
+// 如果只想实现某一些方法，就返回"有这些方法的结构体"就好了
+func ProduceRedisSentinel(hosts []string, masterName string, password string, db, maxSize int, lazyLimit bool) (RedisInterface, error) {
+
+	maxActive, _ := strconv.Atoi(viper.GetString("redis.max_active_conn"))
+	maxIdle, _ := strconv.Atoi(viper.GetString("redis.max_idle_conn"))
+
+	sntnl := &sentinel.Sentinel{
+		Addrs:      hosts,
+		MasterName: masterName,
+		Dial: func(addr string) (redis.Conn, error) {
+			timeout := 500 * time.Millisecond
+			c, err := redis.DialTimeout("tcp", addr, timeout, timeout, timeout)
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		},
+	}
+
+	// 获取sentinel中的主节点的地址
+	masterAddr, err := sntnl.MasterAddr()
+	if err != nil {
+		return nil, err
+	}
+	// 要求RRedis结构体实现返回的接口中所有的方法！
+	redisObj := &RRedis{
+		masterAddr:     masterAddr,
+		maxIdle:        maxIdle,
+		maxActive:      maxActive,
+		maxIdleTimeout: time.Duration(60) * time.Second,
+		maxTimeout:     time.Duration(30) * time.Second,
+		lazyLimit:      lazyLimit,
+		maxSize:        maxSize,
+	}
+	//
+
+	// 建立连接池
+	redisObj.redisCli = &redis.Pool{
+		MaxIdle:     redisObj.maxIdle,
+		MaxActive:   redisObj.maxActive,
+		IdleTimeout: redisObj.maxIdleTimeout,
+		Wait:        true,
+		Dial: func() (redis.Conn, error) {
+			con, err := redis.Dial(
+				"tcp",
+				redisObj.masterAddr,
+				redis.DialPassword(password),
+				redis.DialDatabase(int(db)),
+				redis.DialConnectTimeout(redisObj.maxTimeout),
+				redis.DialReadTimeout(redisObj.maxTimeout),
+				redis.DialWriteTimeout(redisObj.maxTimeout),
+			)
+			if err != nil {
+				return nil, err
+			}
+			return con, nil
+		},
+		TestOnBorrow: CheckRedisRole,
+	}
+
+	return redisObj, nil
+}
+
+func CheckRedisRole(c redis.Conn, t time.Time) error {
+	if !sentinel.TestRole(c, "master") {
+		return fmt.Errorf("Role check failed")
+	} else {
+		return nil
+	}
 }

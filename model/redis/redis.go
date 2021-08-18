@@ -19,3 +19,12 @@ func InitRedis() (err error) {
 	}
 	return nil
 }
+
+func InitRedisSentinel(host []string, masterName string, password string) (err error) {
+	rs, err = tool.NewRedisSentinel(host, masterName, password)
+	if err != nil {
+		glog.Error(err)
+		return err
+	}
+	return nil
+}

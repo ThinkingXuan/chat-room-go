@@ -41,7 +41,10 @@ func externalIP() (net.IP, error) {
 			if ip == nil {
 				continue // not an ipv4 address
 			}
-			fmt.Println("ip: ", ip.String(), "mac: ", iface.HardwareAddr.String())
+			if len(ip.String()) > 0 {
+				return ip, err
+			}
+			//fmt.Println("ip: ", ip.String(), "mac: ", iface.HardwareAddr.String())
 		}
 	}
 	return ip, err

@@ -3,6 +3,7 @@ package handlers
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
+	"chat-room-go/internal/jwtauth"
 	"chat-room-go/model/redis"
 	"github.com/gin-gonic/gin"
 )
@@ -48,12 +49,12 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	//tokenString, err := jwtauth.GenToken(username)
-	//if err != nil {
-	//	response.MakeFail(c, "生成Token失败")
-	//	return
-	//}
-	response.MakeSuccessString(c, username)
+	tokenString, err := jwtauth.GenToken(username)
+	if err != nil {
+		response.MakeFail(c, "generate jwt token failed")
+		return
+	}
+	response.MakeSuccessString(c, tokenString)
 }
 
 // GetUser Get user by user name handler

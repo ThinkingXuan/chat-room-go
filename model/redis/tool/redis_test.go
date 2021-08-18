@@ -285,3 +285,38 @@ func TestZRevrange(t *testing.T) {
 	}
 	t.Log(v)
 }
+
+var (
+	host       = []string{"192.168.1.106:26379", "192.168.1.102:26379", "192.168.1.104:26379"}
+	masterName = "mymaster"
+	password   = "123456"
+)
+
+// 测试 redis sentinel 连接
+func TestNewRedisSentinel(t *testing.T) {
+
+	redis, err := NewRedisSentinel(host, masterName, password)
+	if err != nil || redis == nil {
+		t.Fatal("new redis failure ", err)
+	}
+}
+
+// 测试 redis sentinel map操作
+func TestProduceRedisSentinelHMap(t *testing.T) {
+	redis, err := NewRedisSentinel(host, masterName, password)
+	if err != nil || redis == nil {
+		t.Fatal("new redis failure ", err)
+	}
+	flag, err := redis.HPut("youxuan", "key", "value")
+	if flag != 1 || err != nil {
+		t.Fatal("map put err ", flag)
+	}
+	value, err := redis.HGet("youxuan", "key")
+	if err != nil || value != "value" {
+		t.Fatal("map get err", value, err)
+	}
+	flag, err = redis.HDel("youxuan", "key")
+	if err != nil || flag != 1 {
+		t.Fatal("map del failure", err)
+	}
+}

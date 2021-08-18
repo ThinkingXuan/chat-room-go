@@ -11,6 +11,7 @@ import (
 
 type RRedis struct {
 	redisCli       *redis.Pool
+	masterAddr     string
 	maxIdle        int
 	maxActive      int
 	maxIdleTimeout time.Duration
