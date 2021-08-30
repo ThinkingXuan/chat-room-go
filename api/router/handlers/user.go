@@ -16,6 +16,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	// param validator
+	//isOk := userInfoValidator(reqUser)
+	if len(reqUser.Username) <= 0 || len(reqUser.Password) <= 0 || len(reqUser.FirstName) <= 0 || len(reqUser.LastName) <= 0 || len(reqUser.Email) <= 0 || len(reqUser.Phone) <= 0 {
+		response.MakeFail(c, "param err")
+		return
+	}
 	// 用户存在
 	flag, _ := redis.UserExist(reqUser.Username)
 	if flag == 1 {
@@ -30,6 +36,30 @@ func CreateUser(c *gin.Context) {
 	}
 	response.MakeSuccessString(c, "successful operation")
 }
+
+//var (
+//	regEmail     = regexp2.MustCompile("^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$", regexp2.RE2)
+//	regPhone     = regexp2.MustCompile("^1(3[0-9]|5[0-3,5-9]|7[1-3,5-8]|8[0-9])\\d{8}$", regexp2.RE2)
+//	regUserName  = regexp2.MustCompile("^[\\\\u4e00-\\\\u9fa5_a-zA-Z0-9-]{1,16}$", regexp2.RE2)
+//	regPassword  = regexp2.MustCompile("^(?![a-zA-Z]+$)(?!\\d+$)(?![!@#$%^&*]+$)[a-zA-Z\\d!@#()_$%-^.&*]{6,20}$", regexp2.RE2)
+//	regFirstName = regexp2.MustCompile("^[\\u4e00-\\u9fa5_a-zA-Z]+$", regexp2.RE2)
+//	regLastName  = regexp2.MustCompile("^[\\u4e00-\\u9fa5_a-zA-Z]+$", regexp2.RE2)
+//)
+//
+//func userInfoValidator(user rr.ReqUser) bool {
+//	// email
+//	emailOk, _ := regEmail.MatchString(user.Email)
+//	// phone
+//	phoneOk, _ := regPhone.MatchString(user.Phone)
+//	// username
+//	usernameOK, _ := regUserName.MatchString(user.Username)
+//	passwordOK, _ := regPassword.MatchString(user.Password)
+//
+//	firstNameOk, _ := regFirstName.MatchString(user.FirstName)
+//	lastNameOk, _ := regLastName.MatchString(user.LastName)
+//
+//	return emailOk && phoneOk && usernameOK && firstNameOk && lastNameOk && passwordOK
+//}
 
 // UserLogin Logs user into the system handler
 func UserLogin(c *gin.Context) {

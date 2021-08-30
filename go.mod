@@ -7,8 +7,7 @@ require (
 	github.com/GUAIK-ORG/go-snowflake v0.0.0-20200116064823-220c4260e85f
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/fsnotify/fsnotify v1.4.9
-	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
+	github.com/dlclark/regexp2 v1.4.0
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/validator/v10 v10.7.0 // indirect
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529

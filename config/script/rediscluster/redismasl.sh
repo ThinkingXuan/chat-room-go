@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## kill redis进程 
+ps -ef | grep redis-server | grep -v grep | awk '{print $2}' | xargs kill -9
+
 echo "-----------------设置redis主从集群配置--------------------"
 
 if [ -z $1 ];then

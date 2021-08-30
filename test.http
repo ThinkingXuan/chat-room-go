@@ -1,15 +1,15 @@
 
 ###############
-POST http://192.168.1.104:8081/user
+POST http://127.0.0.1:8081/user
 Content-Type: application/json
 
 {
   "username": "youxuan",
   "firstName": "string",
   "lastName": "string",
-  "email": "string",
-  "password": "string",
-  "phone": "string"
+  "email": "14547839828@qq.com",
+  "password": "q1454739828",
+  "phone": "18351441402"
 }
 
 ###############

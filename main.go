@@ -6,16 +6,13 @@ import (
 	"chat-room-go/model/redis"
 	"chat-room-go/util"
 	"fmt"
-	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
-	"syscall"
 )
 
 var cfgPath = "config/conf/config.yaml"
@@ -50,37 +47,54 @@ func main() {
 	r := router.Load(gin.New())
 
 	// run gin service
-
-	if runtime.GOOS == "windows" {
-		if err := r.Run(viper.GetString("url")); err != nil {
-			glog.Info(err)
-		}
-	} else if runtime.GOOS == "linux" {
-		// 优雅停止服务器
-		server := endless.NewServer(viper.GetString("url"), r)
-		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT] = append(
-			server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT],
-			sendQuickMessage)
-
-		if err := server.ListenAndServe(); err != nil {
-			log.Println(err)
-		}
+	if err := r.Run(viper.GetString("url")); err != nil {
+		glog.Info(err)
 	}
+
+	//if runtime.GOOS == "windows" {
+	//	if err := r.Run(viper.GetString("url")); err != nil {
+	//		glog.Info(err)
+	//	}
+	//}
+	//else if runtime.GOOS == "linux" {
+	//	// 优雅停止服务器
+	//	server := endless.NewServer(viper.GetString("url"), r)
+	//	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT] = append(
+	//		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT],
+	//		sendQuickMessage)
+	//	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGHUP] = append(
+	//		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGHUP],
+	//		sendQuickMessage)
+	//	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGTERM] = append(
+	//		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGTERM],
+	//		sendQuickMessage)
+	//	if err := server.ListenAndServe(); err != nil {
+	//		log.Println(err)
+	//	}
+	//}
 }
 
 func sendQuickMessage() {
-	fmt.Println("hello World!")
-	// 关机通知其他机器，更新sentinel
-	hostString := util.ReadWithFile("./ip-address")
-	hosts := strings.Split(hostString, "\n")
+	// 服务终止
+	masterHost := util.ReadWithFile("./master-address")
 	localIP := util.GetIp()
+	masterIP := strings.Split(masterHost, ":")[0]
+
+	// 死掉的机器不是自己
+	if masterIP != localIP {
+		return
+	}
+	// 死掉的机器是自己，给其他机器发送信号
+	otherHostsString := util.ReadWithFile("./ip-address")
+	hosts := strings.Split(otherHostsString, "\n")
 	for i := 0; i < len(hosts); i++ {
 		ipAddr := strings.Split(hosts[i], ":")[0]
 		if ipAddr != localIP {
-			_, err := http.Get(fmt.Sprintf("http://%s:8080/checkCluster", ipAddr))
+			_, err := http.Get(fmt.Sprintf("http://%s:8080/startCluster", ipAddr))
 			if err != nil {
 				log.Println(err)
 			}
 		}
 	}
+
 }

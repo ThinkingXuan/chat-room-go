@@ -4,17 +4,13 @@ import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
 	"chat-room-go/model/redis"
-	"chat-room-go/model/redis/tool"
 	"chat-room-go/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"sort"
 	"strings"
-)
-
-var (
-	host []string
+	"time"
 )
 
 func UpdateCluster(c *gin.Context) {
@@ -42,6 +38,11 @@ func UpdateCluster(c *gin.Context) {
 		return
 	}
 
+	// 非master节点延迟2s
+	if peerNum != 0 {
+		time.Sleep(time.Second * 2)
+	}
+
 	// 赋予权限脚本
 	_, err := util.ExecShell("sudo chmod +x config/script/rediscluster/redismasl.sh")
 	_, err = util.ExecShell("sudo chmod +x config/script/rediscluster/sentinel.sh")
@@ -62,7 +63,7 @@ func UpdateCluster(c *gin.Context) {
 	}
 
 	// host
-	host = reqClusterIP
+	host := reqClusterIP
 	hostStr := ""
 	port := viper.GetString("redis-sentinel.port")
 	for i := 0; i < len(host); i++ {
@@ -71,16 +72,6 @@ func UpdateCluster(c *gin.Context) {
 	}
 	// host write to file
 	util.WriteWithFile("./ip-address", hostStr)
-
-	masterName := viper.GetString("redis-sentinel.master_name")
-	password := viper.GetString("redis-sentinel.password")
-
-	// init redis sentinel client
-	err = redis.InitRedisSentinel(host, masterName, password)
-	if err != nil {
-		response.MakeFail(c, "redis client start failure")
-		return
-	}
 
 	response.MakeSuccessString(c, "success")
 }
@@ -91,10 +82,12 @@ func CheckCluster(c *gin.Context) {
 	password := viper.GetString("redis-sentinel.password")
 
 	// read a file ip address
-	if len(host) <= 0 {
-		hostString := util.ReadWithFile("./ip-address")
-		host = strings.Split(hostString, "\n")
-	}
+	hostString := util.ReadWithFile("./ip-address")
+	host := strings.Split(hostString, "\n")
+
+	// close redis
+	redis.CloseRedis()
+
 	// init redis sentinel client
 	err := redis.InitRedisSentinel(host, masterName, password)
 	if err != nil {
@@ -102,10 +95,10 @@ func CheckCluster(c *gin.Context) {
 		return
 	}
 
-	redis, err := tool.NewRedisSentinel(host, masterName, password)
-	if err != nil || redis == nil {
-		response.MakeFail(c, "redis start failure")
-		return
-	}
+	//redis, err := tool.NewRedisSentinel(host, masterName, password)
+	//if err != nil || redis == nil {
+	//	response.MakeFail(c, "redis start failure")
+	//	return
+	//}
 	response.MakeSuccessString(c, "success")
 }

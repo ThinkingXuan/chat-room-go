@@ -4,9 +4,12 @@ import (
 	"fmt"
 	snow2 "github.com/GUAIK-ORG/go-snowflake/snowflake"
 	"github.com/bwmarrin/snowflake"
+	"time"
 )
 
-var s, _ = snow2.NewSnowflake(int64(0), int64(0))
+// 分布式ID,需要节点动态。
+var s, _ = snow2.NewSnowflake(int64(time.Now().Nanosecond()%10), int64(time.Now().Nanosecond()%200))
+
 var node, _ = snowflake.NewNode(1)
 
 func GetSnowflakeID() string {
