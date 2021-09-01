@@ -10,7 +10,6 @@ var (
 
 // InitRedis 初始化Redis数据库
 func InitRedis() (err error) {
-
 	rs, err = NewRedis()
 	if err != nil {
 		glog.Error(err)
@@ -19,6 +18,7 @@ func InitRedis() (err error) {
 	return nil
 }
 
+// InitRedisSentinel 初始化带Sentinel的Redis接口
 func InitRedisSentinel(host []string, masterName string, password string) (err error) {
 	rs, err = NewRedisSentinel(host, masterName, password)
 	if err != nil {
@@ -32,9 +32,7 @@ func CloseRedis() {
 	rs = nil
 }
 
-//func GetRedisMasterIP() (string, error) {
-//	if rs == nil {
-//		return "",errors.New("no init redis")
-//	}
-//
-//}
+//GetRedisMasterIP 获取Redis Sentinel的Master节点IP
+func GetRedisMasterIP() string {
+	return curMasterNodeIP
+}

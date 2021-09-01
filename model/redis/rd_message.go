@@ -14,7 +14,7 @@ message信息 ZSet列表  mgs.roomId :[msgId#msgText#msgTime, msgId#msgText#msgT
 
 func CreateMessage(req *rr.ReqMessage) (int, error) {
 	timestamp := util.GetNowTimeUnixNanoString()
-	flag, err := rs.ZsPUT("msg."+req.RoomID, util.GetSnowflakeInt(), req.ID+"##"+req.Text+"##"+timestamp)
+	flag, err := rs.ZsPUT("msg."+req.RoomID, util.GetSnowflakeInt2(), req.ID+"##"+req.Text+"##"+timestamp)
 	return flag, err
 }
 

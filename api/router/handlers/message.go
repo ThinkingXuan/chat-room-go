@@ -39,10 +39,6 @@ func SendMessage(c *gin.Context) {
 
 	response.MakeSuccessString(c, "success")
 
-	//go model.CreateSyncMessage(&reqMsg)
-
-	// 异步发送信息
-	//pool.WorkSendMessage(&reqMsg)
 }
 
 // GetMessageList get message list

@@ -26,7 +26,7 @@ var (
 
 // CreateRoom Redis create a room
 func CreateRoom(roomID string, roomName string) (int, error) {
-	flag, err := rs.ZsPUT(RoomsKey, util.GetSnowflakeInt(), roomID+"#"+roomName)
+	flag, err := rs.ZsPUT(RoomsKey, util.GetSnowflakeInt2(), roomID+"#"+roomName)
 	return flag, err
 }
 

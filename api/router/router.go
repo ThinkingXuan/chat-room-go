@@ -45,5 +45,4 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		cluster.GET("/checkCluster", handlers.CheckCluster)
 	}
 	return e
-
 }
