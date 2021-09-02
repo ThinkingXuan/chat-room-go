@@ -4,6 +4,7 @@ import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
 	"chat-room-go/model/redis"
+	"chat-room-go/model/redis_read"
 	"chat-room-go/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -87,18 +88,21 @@ func CheckCluster(c *gin.Context) {
 
 	// close redis
 	redis.CloseRedis()
+	redis_read.CloseRedis()
 
-	// init redis sentinel client
+	// init redis write sentinel client
 	err := redis.InitRedisSentinel(host, masterName, password)
 	if err != nil {
 		response.MakeFail(c, "redis client start failure")
 		return
 	}
 
-	//redis, err := tool.NewRedisSentinel(host, masterName, password)
-	//if err != nil || redis == nil {
-	//	response.MakeFail(c, "redis start failure")
-	//	return
-	//}
+	// init redis read sentinel client
+	err = redis_read.InitRedis()
+	if err != nil {
+		response.MakeFail(c, "redis client start failure")
+		return
+	}
+
 	response.MakeSuccessString(c, "success")
 }

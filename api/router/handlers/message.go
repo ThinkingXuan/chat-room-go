@@ -4,7 +4,7 @@ import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
 	"chat-room-go/model/redis"
-	"fmt"
+	"chat-room-go/model/redis_read"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +23,7 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 
-	roomID, err := redis.GetUserInRoom(username)
+	roomID, err := redis_read.GetUserInRoom(username)
 	if err != nil || len(roomID) <= 0 {
 		response.MakeFail(c, "user no exist room")
 		return
@@ -31,7 +31,6 @@ func SendMessage(c *gin.Context) {
 	reqMsg.RoomID = roomID
 
 	flag, err := redis.CreateMessage(&reqMsg)
-	fmt.Println(flag, err)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "insert err")
 		return
@@ -61,13 +60,13 @@ func GetMessageList(c *gin.Context) {
 		return
 	}
 
-	roomID, err := redis.GetUserInRoom(username)
+	roomID, err := redis_read.GetUserInRoom(username)
 	if err != nil || len(roomID) <= 0 {
 		response.MakeFail(c, "user no exist room")
 		return
 	}
 
-	messages, err := redis.SelectMessageListPage(roomID, reqPage.PageIndex, reqPage.PageSize)
+	messages, err := redis_read.SelectMessageListPage(roomID, reqPage.PageIndex, reqPage.PageSize)
 	if err != nil {
 		response.MakeFail(c, "select err")
 		return

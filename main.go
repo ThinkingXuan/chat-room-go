@@ -4,6 +4,7 @@ import (
 	"chat-room-go/api/router"
 	"chat-room-go/config"
 	"chat-room-go/model/redis"
+	"chat-room-go/model/redis_read"
 	"chat-room-go/util"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 var cfgPath = "config/conf/config.yaml"
@@ -50,6 +52,11 @@ func main() {
 		masterIP = strings.Split(masterIP, ":")[0]
 		// 启动集群和哨兵
 		startRedisClusterAndSentinel(masterIP)
+
+		// 延迟1s
+		time.Sleep(time.Second)
+		// 初始化只读连接
+		redis_read.InitRedis()
 	}
 
 	// init router and middleware

@@ -5,6 +5,7 @@ import (
 	"chat-room-go/api/router/rr"
 	"chat-room-go/internal/jwtauth"
 	"chat-room-go/model/redis"
+	"chat-room-go/model/redis_read"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +24,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	// 用户存在
-	flag, _ := redis.UserExist(reqUser.Username)
+	flag, _ := redis_read.UserExist(reqUser.Username)
 	if flag == 1 {
 		response.MakeFail(c, "user exist")
 		return
@@ -73,7 +74,7 @@ func UserLogin(c *gin.Context) {
 	}
 
 	// 查询用户是否存在,查询用户是否存在并判断密码是否正确
-	dbUser, err := redis.GetUser(username)
+	dbUser, err := redis_read.GetUser(username)
 	if err != nil || dbUser == nil || dbUser.Password != password {
 		response.MakeFail(c, "username or password error")
 		return
@@ -95,7 +96,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 	// 查询用户是否存在
-	reqUser, err := redis.GetUser(username)
+	reqUser, err := redis_read.GetUser(username)
 	if err != nil || reqUser == nil {
 		response.MakeFail(c, "username error")
 		return

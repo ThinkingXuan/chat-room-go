@@ -4,6 +4,7 @@ import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
 	"chat-room-go/model/redis"
+	"chat-room-go/model/redis_read"
 	"chat-room-go/util"
 	"github.com/gin-gonic/gin"
 )
@@ -49,7 +50,7 @@ func GetOneRoomInfo(c *gin.Context) {
 		return
 	}
 
-	roomName, err := redis.GetRoomInfo(roomID)
+	roomName, err := redis_read.GetRoomInfo(roomID)
 	if len(roomName) <= 0 || err != nil {
 		response.MakeFail(c, "Invalid Room ID")
 		return
@@ -70,7 +71,7 @@ func GetRoomList(c *gin.Context) {
 		return
 	}
 
-	rooms, err := redis.SelectRoomListPage(reqPage.PageIndex, reqPage.PageSize)
+	rooms, err := redis_read.SelectRoomListPage(reqPage.PageIndex, reqPage.PageSize)
 	if err != nil {
 		response.MakeFail(c, "select err")
 		return
@@ -89,14 +90,14 @@ func EnterRoom(c *gin.Context) {
 	}
 
 	// 判断房间是否存在
-	flag, err := redis.RoomExists(roomID)
+	flag, err := redis_read.RoomExists(roomID)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "Invalid Room ID")
 		return
 	}
 
 	//获取所在房间的ID
-	oldRoomID, _ := redis.GetUserInRoom(username)
+	oldRoomID, _ := redis_read.GetUserInRoom(username)
 
 	// 现在所在房间为要进入的房间
 	if oldRoomID == roomID {
@@ -126,7 +127,7 @@ func LeaveRoom(c *gin.Context) {
 	username := c.MustGet("username").(string)
 
 	//获取所在房间的ID
-	oldRoomID, _ := redis.GetUserInRoom(username)
+	oldRoomID, _ := redis_read.GetUserInRoom(username)
 	// 用户不在房间
 	if len(oldRoomID) <= 0 {
 		response.MakeFail(c, "leave Room failure")
@@ -148,7 +149,7 @@ func RoomAllUser(c *gin.Context) {
 		return
 	}
 
-	roomUser, err := redis.GetRoomAllUser(roomID)
+	roomUser, err := redis_read.GetRoomAllUser(roomID)
 	if err != nil || len(roomUser) < 0 {
 		response.MakeFail(c, "get users failure")
 		return
