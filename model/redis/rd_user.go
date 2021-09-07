@@ -18,6 +18,7 @@ var (
 // CreateUser Redis create a user
 func CreateUser(reqUser *rr.ReqUser) (int, error) {
 	// 序列化
+	// todo json序列化 太占用内存了，后面需要换成protobuf
 	reqUserByte, _ := json.Marshal(reqUser)
 	flag, err := rs.HPut(UserKey, reqUser.Username, reqUserByte)
 	return flag, err
