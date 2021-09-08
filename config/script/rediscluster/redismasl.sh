@@ -26,6 +26,7 @@ sed -i 's/# requirepass foobared/requirepass 123456/g' /usr/local/redis-5.0.5/re
 sed -i 's/logfile ""/logfile "\/usr\/local\/redis-5.0.5\/reids.log"/g' /usr/local/redis-5.0.5/redis.conf
 sed -i 's/dir \.\//dir "\/usr\/local\/redis-5.0.5\/redisworkplace"/g' /usr/local/redis-5.0.5/redis.conf
 sed -i 's/# masterauth <master-password>/masterauth 123456/g' /usr/local/redis-5.0.5/redis.conf
+sed -i 's/protected-mode yes/protected-mode no/g' /usr/local/redis-5.0.5/redis.conf
 
 if [ "$1" = "master" ];then
 echo "主节点设置完成"

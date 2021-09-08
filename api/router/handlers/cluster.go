@@ -55,6 +55,9 @@ func UpdateCluster(c *gin.Context) {
 		_, err = util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/redismasl.sh %s %s", "slave", reqClusterIP[0]))
 	}
 
+	// after delay 2s, start sentinel
+	time.Sleep(time.Second * 2)
+
 	// exec redis sentinel script
 	_, err = util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/sentinel.sh %s", reqClusterIP[0]))
 
@@ -96,6 +99,8 @@ func CheckCluster(c *gin.Context) {
 		response.MakeFail(c, "redis client start failure")
 		return
 	}
+
+	time.Sleep(1 * time.Second)
 
 	// init redis read sentinel client
 	err = redis_read.InitRedis()

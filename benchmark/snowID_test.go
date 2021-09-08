@@ -4,6 +4,7 @@ import (
 	"chat-room-go/util"
 	"fmt"
 	snow2 "github.com/GUAIK-ORG/go-snowflake/snowflake"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -36,4 +37,11 @@ func TestName(t *testing.T) {
 	ip := "192.16.1.104:"
 	ip = strings.Split(ip, ":")[0]
 	fmt.Println(ip)
+}
+
+func TestStringsSort(t *testing.T) {
+	reqClusterIP := []string{"192.168.1.104", "192.168.1.102", "192.168.1.106"}
+	// sort
+	sort.Strings(reqClusterIP)
+	t.Log(reqClusterIP)
 }

@@ -22,6 +22,8 @@ sed -i 's/dir \/tmp/dir \/usr\/local\/redis-5.0.5\/sentinel/g' /usr/local/redis-
 sed -i 's/sentinel monitor mymaster 127.0.0.1 6379 2/sentinel monitor mymaster '$1' 6379 2/g' /usr/local/redis-5.0.5/sentinel.conf
 sed -i 's/# sentinel auth-pass <master-name> <password>/sentinel auth-pass mymaster 123456/g' /usr/local/redis-5.0.5/sentinel.conf
 sed -i 's/sentinel down-after-milliseconds mymaster 30000/sentinel down-after-milliseconds mymaster 3000/g' /usr/local/redis-5.0.5/sentinel.conf
+sed -i 's/# sentinel failover-timeout <master-name> <milliseconds>/sentinel failover-timeout mymaster 5000/g' /usr/local/redis-5.0.5/sentinel.conf
+
 
 echo "Sentinel配置完毕"
 echo "正在启动Sentinel"

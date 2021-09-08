@@ -46,8 +46,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		// 延迟5s
-		time.Sleep(time.Second * 5)
+		// 延迟2s
+		time.Sleep(time.Second * 2)
 		// 获取master节点地址  ip:端口
 		masterIP := redis.GetRedisMasterIP()
 		// 去除端口号
@@ -55,10 +55,13 @@ func main() {
 		// 启动集群和哨兵
 		startRedisClusterAndSentinel(masterIP)
 
-		// 延迟5s
-		time.Sleep(time.Second * 10)
-		// 初始化只读连接
+		// 延迟2s
+		time.Sleep(time.Second * 2)
+
+		// 初始化
 		redis_read.InitRedis()
+		redis.InitRedisSentinel(rc.host, rc.masterName, rc.password)
+
 	}
 
 	// init router and middleware

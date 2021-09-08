@@ -66,61 +66,9 @@ type RedisInterface interface {
 	ZSETInterface
 }
 
-// NewRedis create a redis connect
-func NewRedis() (RedisInterface, error) {
-	host := viper.GetString("redis.host")
-	port := viper.GetString("redis.port")
-	password := viper.GetString("redis.password")
-	return ProduceRedis(host, port, password, 0, 100, true)
-}
-
 // NewRedisSentinel create a redis sentinel
 func NewRedisSentinel(hosts []string, masterName string, password string) (RedisInterface, error) {
 	return ProduceRedisSentinel(hosts, masterName, password, 0, 100, true)
-}
-
-// ProduceRedis 工厂函数，要求对应的结构体必须实现 RedisInterface 中的所有方法
-// 如果只想实现某一些方法，就返回"有这些方法的结构体"就好了
-func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) (RedisInterface, error) {
-
-	maxActive, _ := strconv.Atoi(viper.GetString("redis.max_active_conn"))
-	maxIdle, _ := strconv.Atoi(viper.GetString("redis.max_idle_conn"))
-
-	// 要求RRedis结构体实现返回的接口中所有的方法！
-	redisObj := &RRedis{
-		maxIdle:        maxIdle,
-		maxActive:      maxActive,
-		maxIdleTimeout: time.Duration(60) * time.Second,
-		maxTimeout:     time.Duration(30) * time.Second,
-		lazyLimit:      lazyLimit,
-		maxSize:        maxSize,
-	}
-	//
-
-	// 建立连接池
-	redisObj.redisCli = &redis.Pool{
-		MaxIdle:     redisObj.maxIdle,
-		MaxActive:   redisObj.maxActive,
-		IdleTimeout: redisObj.maxIdleTimeout,
-		Wait:        true,
-		Dial: func() (redis.Conn, error) {
-			con, err := redis.Dial(
-				"tcp",
-				host+":"+port, // address
-				redis.DialPassword(password),
-				redis.DialDatabase(int(db)),
-				redis.DialConnectTimeout(redisObj.maxTimeout),
-				redis.DialReadTimeout(redisObj.maxTimeout),
-				redis.DialWriteTimeout(redisObj.maxTimeout),
-			)
-			if err != nil {
-				return nil, err
-			}
-			return con, nil
-		},
-	}
-
-	return redisObj, nil
 }
 
 // ProduceRedisSentinel 工厂函数，要求对应的结构体必须实现 RedisInterface 中的所有方法
@@ -220,6 +168,7 @@ func CheckMasterStatus(sentinel *sentinel.Sentinel) {
 			if err != nil {
 				continue
 			}
+			// 退出
 			return
 		}
 		//log.Println("cluster healthy!!")
