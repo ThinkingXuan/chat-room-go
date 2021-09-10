@@ -44,7 +44,6 @@ func main() {
 		rc, _ := ReadRedisConfig()
 		err := redis.InitRedisSentinel(rc.host, rc.masterName, rc.password)
 		if err != nil {
-			panic(err)
 		}
 		// 延迟2s
 		time.Sleep(time.Second * 2)
@@ -52,8 +51,15 @@ func main() {
 		masterIP := redis.GetRedisMasterIP()
 		// 去除端口号
 		masterIP = strings.Split(masterIP, ":")[0]
+
+		// 机器完全宕机后，重新生成集群
+		if masterIP == "" {
+			hosts := getRedisClusterHosts()
+			masterIP = strings.Split(hosts[0], ":")[0]
+		}
+
 		// 启动集群和哨兵
-		startRedisClusterAndSentinel(masterIP)
+		startSlaveRedisClusterAndSentinel(masterIP)
 
 		// 延迟2s
 		time.Sleep(time.Second * 2)
@@ -71,28 +77,6 @@ func main() {
 	if err := r.Run(viper.GetString("url")); err != nil {
 		glog.Info(err)
 	}
-
-	//if runtime.GOOS == "windows" {
-	//	if err := r.Run(viper.GetString("url")); err != nil {
-	//		glog.Info(err)
-	//	}
-	//}
-	//else if runtime.GOOS == "linux" {
-	//	// 优雅停止服务器
-	//	server := endless.NewServer(viper.GetString("url"), r)
-	//	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT] = append(
-	//		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT],
-	//		sendQuickMessage)
-	//	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGHUP] = append(
-	//		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGHUP],
-	//		sendQuickMessage)
-	//	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGTERM] = append(
-	//		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGTERM],
-	//		sendQuickMessage)
-	//	if err := server.ListenAndServe(); err != nil {
-	//		log.Println(err)
-	//	}
-	//}
 }
 
 func sendQuickMessage() {
@@ -123,8 +107,8 @@ func sendQuickMessage() {
 // ReadRedisConfig 读取Redis配置
 func ReadRedisConfig() (RedisConnect, error) {
 	var rc RedisConnect
-	hostString := util.ReadWithFile("./ip-address")
-	hosts := strings.Split(hostString, "\n")
+
+	hosts := getRedisClusterHosts()
 	if len(hosts) == 3 {
 		masterName := viper.GetString("redis-sentinel.master_name")
 		password := viper.GetString("redis-sentinel.password")
@@ -137,7 +121,18 @@ func ReadRedisConfig() (RedisConnect, error) {
 	return rc, nil
 }
 
-func startRedisClusterAndSentinel(masterIP string) {
+func getRedisClusterHosts() []string {
+	hostString := util.ReadWithFile("./ip-address")
+	hosts := strings.Split(hostString, "\n")
+	return hosts
+}
+
+func startSlaveRedisClusterAndSentinel(masterIP string) {
 	util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/redismasl.sh %s %s", "slave", masterIP))
 	util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/sentinel.sh %s", masterIP))
 }
+
+//func startMasterRedisClusterAndSentinel() {
+//	util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/redismasl.sh %s %s", "slave", masterIP))
+//	util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/sentinel.sh %s", masterIP))
+//}
