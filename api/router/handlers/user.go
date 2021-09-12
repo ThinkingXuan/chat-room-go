@@ -22,6 +22,11 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	if  len(reqUser.Phone) <=0 || len(reqUser.FirstName) <=0 ||  len(reqUser.Username) <=0 ||  len(reqUser.Password) <=0 ||  len(reqUser.LastName) <=0 ||  len(reqUser.Email) <=0 {
+		response.MakeFail(c, "user parse")
+		return
+	}
+
 	flag, err := redis.CreateUser(&reqUser)
 	if flag != 1 || err != nil {
 		response.MakeFail(c, "insert err")

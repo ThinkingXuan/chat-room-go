@@ -16,8 +16,8 @@ var (
 
 // CreateUser Redis create a user
 func CreateUser(reqUser *rr.ReqUser) (int, error) {
-	userInfo := reqUser.FirstName + "##" + reqUser.LastName + "##" + reqUser.Email + "##" + reqUser.Password + "##" + reqUser.Phone
-	//userInfo := fmt.Sprintf("%s##%s##%s##%s##%s", reqUser.FirstName, reqUser.LastName, reqUser.Email, reqUser.Password, reqUser.Phone)
+	userInfo := reqUser.FirstName + "_#_#" + reqUser.LastName + "_#_#" + reqUser.Email + "_#_#" + reqUser.Password + "_#_#" + reqUser.Phone
+	//userInfo := fmt.Sprintf("%s##%s##%s##%s##%s", reqUser.FirstName, reqUs#$#tName, reqUser.Email, reqUser.Password, reqUser.Phone)
 	flag, err := rs.HPut(UserKey, reqUser.Username, userInfo)
 	return flag, err
 }
@@ -34,7 +34,7 @@ func GetUser(username string) (*rr.ReqUser, error) {
 	if err != nil {
 		return &reqUser, err
 	}
-	userInfo := strings.Split(userInter.(string), "##")
+	userInfo := strings.Split(userInter.(string), "_#_#")
 	reqUser.Username = username
 	reqUser.FirstName = userInfo[0]
 	reqUser.LastName = userInfo[1]

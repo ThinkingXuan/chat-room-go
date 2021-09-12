@@ -23,7 +23,7 @@ func Load(e *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// room router
 	room := e.Group("/")
 	{
-		room.POST("/room", handlers.CreateRoom)                                   // Create a new room
+		room.POST("/room", middleware.JWTAuth(),handlers.CreateRoom)                                   // Create a new room
 		room.PUT("/room/:roomid/enter", middleware.JWTAuth(), handlers.EnterRoom) // Enter a room
 		room.PUT("/roomLeave", middleware.JWTAuth(), handlers.LeaveRoom)          // Leave a root
 		room.GET("/room/:roomid", handlers.GetOneRoomInfo)                        // Get the room info
