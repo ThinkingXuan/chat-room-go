@@ -3,11 +3,9 @@ package util
 import (
 	"fmt"
 	"net"
+	"strconv"
+	"strings"
 )
-
-func main() {
-	fmt.Println(GetIp())
-}
 
 func externalIP() (net.IP, error) {
 	var ip net.IP
@@ -50,12 +48,24 @@ func externalIP() (net.IP, error) {
 	return ip, err
 }
 
-func GetIp() string {
+// GetLocalIP 获取本机IP
+func GetLocalIP() string {
 	ip, err := externalIP()
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	//fmt.Println(ip.String())
 	return ip.String()
+}
+
+// GetLocalShortIP 获取本机IP的最后一段地址
+// 例如192.168.1.104  返回 104
+func GetLocalShortIP() string {
+	shorts := strings.Split(GetLocalIP(), ".")
+	return shorts[len(shorts)-1]
+}
+
+// GetLocalIntShortIP 获取本机IP的最后一段地址的int64类型，用户生成雪花ID的节点值
+func GetLocalIntShortIP() int64 {
+	ipShortInt, _ := strconv.Atoi(GetLocalIP())
+	return int64(ipShortInt)
 }

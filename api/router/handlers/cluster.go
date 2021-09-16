@@ -3,14 +3,12 @@ package handlers
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
-	"chat-room-go/model/redis"
-	"chat-room-go/model/redis_read"
+	"chat-room-go/internal/run"
 	"chat-room-go/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"sort"
-	"strings"
 	"time"
 )
 
@@ -25,7 +23,7 @@ func UpdateCluster(c *gin.Context) {
 	// sort
 	sort.Strings(reqClusterIP)
 
-	localIP := util.GetIp()
+	localIP := util.GetLocalIP()
 	peerNum := -1
 	for i := 0; i < len(reqClusterIP); i++ {
 		if reqClusterIP[i] == localIP {
@@ -48,7 +46,7 @@ func UpdateCluster(c *gin.Context) {
 	_, err := util.ExecShell("sudo chmod +x config/script/rediscluster/redismasl.sh")
 	_, err = util.ExecShell("sudo chmod +x config/script/rediscluster/sentinel.sh")
 
-	// redis master/slave peer script start
+	// redis_write master/slave peer script start
 	if peerNum == 0 {
 		_, err = util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/redismasl.sh %s", "master"))
 	} else {
@@ -58,11 +56,11 @@ func UpdateCluster(c *gin.Context) {
 	// after delay 2s, start sentinel
 	time.Sleep(time.Second * 2)
 
-	// exec redis sentinel script
+	// exec redis_write sentinel script
 	_, err = util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/sentinel.sh %s", reqClusterIP[0]))
 
 	if err != nil {
-		response.MakeFail(c, "redis or sentinel start failure")
+		response.MakeFail(c, "redis_write or sentinel start failure")
 		return
 	}
 
@@ -82,32 +80,22 @@ func UpdateCluster(c *gin.Context) {
 
 func CheckCluster(c *gin.Context) {
 
-	masterName := viper.GetString("redis-sentinel.master_name")
-	password := viper.GetString("redis-sentinel.password")
+	rc, _ := run.ReadRedisSentinelConfig()
 
-	// read a file ip address
-	hostString := util.ReadWithFile("./ip-address")
-	host := strings.Split(hostString, "\n")
-
-	// close redis
-	redis.CloseRedis()
-	redis_read.CloseRedis()
-
-	// init redis write sentinel client
-	err := redis.InitRedisSentinel(host, masterName, password)
+	// init redis_write write sentinel client
+	err := run.StartRedisWriteConnection(rc)
 	if err != nil {
-		response.MakeFail(c, "redis client start failure")
+		response.MakeFail(c, "redis_write client start failure")
 		return
 	}
 
 	time.Sleep(1 * time.Second)
 
-	// init redis read sentinel client
-	err = redis_read.InitRedis()
+	// init redis_write read sentinel client
+	err = run.StartRedisReadWriteConnection()
 	if err != nil {
-		response.MakeFail(c, "redis client start failure")
+		response.MakeFail(c, "redis_write client start failure")
 		return
 	}
-
 	response.MakeSuccessString(c, "success")
 }

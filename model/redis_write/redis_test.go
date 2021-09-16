@@ -1,4 +1,4 @@
-package redis
+package redis_write
 
 //func TestRedisConnect(t *testing.T) {
 //	redisCLi, err := ProduceRedis("127.0.0.1", "6379", "123456", 0, 100, true)
@@ -122,10 +122,10 @@ package redis
 //	//}
 //	//redisCLi.SPutPipe()
 //
-//	dialOption := redis.DialPassword("123456")
-//	conn, err := redis.Dial("tcp", "localhost:6379", dialOption)
+//	dialOption := redis_write.DialPassword("123456")
+//	conn, err := redis_write.Dial("tcp", "localhost:6379", dialOption)
 //	if err != nil {
-//		fmt.Println("conn redis failed, err:", err)
+//		fmt.Println("conn redis_write failed, err:", err)
 //		return
 //	}
 //	defer conn.Close()
@@ -227,13 +227,13 @@ package redis
 //}
 //
 //func TestSScan(t *testing.T) {
-//	dialOption := redis.DialPassword("123456")
-//	c, err := redis.Dial("tcp", "localhost:6379", dialOption)
+//	dialOption := redis_write.DialPassword("123456")
+//	c, err := redis_write.Dial("tcp", "localhost:6379", dialOption)
 //	if err != nil {
-//		fmt.Println("conn redis failed,", err)
+//		fmt.Println("conn redis_write failed,", err)
 //		return
 //	}
-//	fmt.Println("redis conn success")
+//	fmt.Println("redis_write conn success")
 //	defer c.Close()
 //
 //	//users := []string{}
@@ -243,7 +243,7 @@ package redis
 //	fmt.Printf("%T v:= %d\n", s.([]interface{})[0], s.([]interface{})[0].([]uint8)[0]-'0')
 //	fmt.Printf("%T\n", s.([]interface{})[1])
 //
-//	//t, _ := redis.Ints(s.([]interface{})[0],nil)
+//	//t, _ := redis_write.Ints(s.([]interface{})[0],nil)
 //	if err != nil {
 //		fmt.Println(err)
 //		return
@@ -283,30 +283,30 @@ package redis
 //	password   = "123456"
 //)
 //
-//// 测试 redis sentinel 连接
+//// 测试 redis_write sentinel 连接
 //func TestNewRedisSentinel(t *testing.T) {
 //
-//	redis, err := NewRedisSentinel(host, masterName, password)
-//	if err != nil || redis == nil {
-//		t.Fatal("new redis failure ", err)
+//	redis_write, err := NewRedisSentinel(host, masterName, password)
+//	if err != nil || redis_write == nil {
+//		t.Fatal("new redis_write failure ", err)
 //	}
 //}
 //
-//// 测试 redis sentinel map操作
+//// 测试 redis_write sentinel map操作
 //func TestProduceRedisSentinelHMap(t *testing.T) {
-//	redis, err := NewRedisSentinel(host, masterName, password)
-//	if err != nil || redis == nil {
-//		t.Fatal("new redis failure ", err)
+//	redis_write, err := NewRedisSentinel(host, masterName, password)
+//	if err != nil || redis_write == nil {
+//		t.Fatal("new redis_write failure ", err)
 //	}
-//	flag, err := redis.HPut("youxuan", "key", "value")
+//	flag, err := redis_write.HPut("youxuan", "key", "value")
 //	if flag != 1 || err != nil {
 //		t.Fatal("map put err ", flag)
 //	}
-//	value, err := redis.HGet("youxuan", "key")
+//	value, err := redis_write.HGet("youxuan", "key")
 //	if err != nil || value != "value" {
 //		t.Fatal("map get err", value, err)
 //	}
-//	flag, err = redis.HDel("youxuan", "key")
+//	flag, err = redis_write.HDel("youxuan", "key")
 //	if err != nil || flag != 1 {
 //		t.Fatal("map del failure", err)
 //	}

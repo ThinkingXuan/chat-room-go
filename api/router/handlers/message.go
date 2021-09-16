@@ -3,8 +3,8 @@ package handlers
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
-	"chat-room-go/model/redis"
 	"chat-room-go/model/redis_read"
+	"chat-room-go/model/redis_write"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,7 +30,7 @@ func SendMessage(c *gin.Context) {
 	}
 	reqMsg.RoomID = roomID
 
-	flag, err := redis.CreateMessage(&reqMsg)
+	flag, err := redis_write.CreateMessage(&reqMsg)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "insert err")
 		return

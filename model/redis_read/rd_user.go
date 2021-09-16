@@ -19,7 +19,7 @@ func UserExist(userName string) (int, error) {
 	return rs.HExists(UserKey, userName)
 }
 
-// GetUser get user info form redis
+// GetUser get user info form redis_write
 func GetUser(username string) (*rr.ReqUser, error) {
 	var reqUser rr.ReqUser
 	userBytes, err := rs.HGetBytes(UserKey, username)

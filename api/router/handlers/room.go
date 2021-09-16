@@ -3,8 +3,8 @@ package handlers
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
-	"chat-room-go/model/redis"
 	"chat-room-go/model/redis_read"
+	"chat-room-go/model/redis_write"
 	"chat-room-go/util"
 	"github.com/gin-gonic/gin"
 )
@@ -25,14 +25,14 @@ func CreateRoom(c *gin.Context) {
 	// create a room id
 	roomID := util.GetSnowflakeID2()
 
-	// write to redis： crate a room zset
-	flag, err := redis.CreateRoom(roomID, reqRoom.Name)
+	// write to redis_write： crate a room zset
+	flag, err := redis_write.CreateRoom(roomID, reqRoom.Name)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "create room err")
 		return
 	}
-	//	write to redis： crate a room info
-	flag, err = redis.CreateRoomInfo(roomID, reqRoom.Name)
+	//	write to redis_write： crate a room info
+	flag, err = redis_write.CreateRoomInfo(roomID, reqRoom.Name)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "create room err")
 		return
@@ -107,14 +107,14 @@ func EnterRoom(c *gin.Context) {
 	// 现在所在房间为不是自己要进入的房间
 	if len(oldRoomID) > 0 {
 		// 离开房间
-		_, err := redis.LeaveRoom(oldRoomID, username)
+		_, err := redis_write.LeaveRoom(oldRoomID, username)
 		if err != nil {
 			response.MakeFail(c, "leave Room failure")
 		}
 	}
 
 	// 进入此房间
-	flag, err = redis.EnterRoom(roomID, username)
+	flag, err = redis_write.EnterRoom(roomID, username)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "enter Room failure")
 		return
@@ -133,7 +133,7 @@ func LeaveRoom(c *gin.Context) {
 		response.MakeFail(c, "leave Room failure")
 		return
 	}
-	flag, err := redis.LeaveRoom(oldRoomID, username)
+	flag, err := redis_write.LeaveRoom(oldRoomID, username)
 	if err != nil || flag != 1 {
 		response.MakeFail(c, "leave Room failure")
 		return

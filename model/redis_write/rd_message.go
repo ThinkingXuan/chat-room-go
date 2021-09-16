@@ -1,4 +1,4 @@
-package redis
+package redis_write
 
 import (
 	"chat-room-go/api/router/rr"

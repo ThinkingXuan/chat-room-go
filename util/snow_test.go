@@ -17,6 +17,10 @@ func TestGetSnowflakeID2(t *testing.T) {
 
 	}
 }
+func TestSnowMaxNode(t *testing.T) {
+	//1023
+	t.Log(-1 ^ (-1 << 10))
+}
 
 func TestReg(t *testing.T) {
 	//reg := regexp.MustCompile("^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$")

@@ -1,4 +1,4 @@
-package redis
+package redis_write
 
 import (
 	"github.com/golang/glog"

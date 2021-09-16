@@ -79,7 +79,6 @@ func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) 
 		lazyLimit:      lazyLimit,
 		maxSize:        maxSize,
 	}
-	//
 
 	// 建立连接池
 	redisObj.redisCli = &redis.Pool{

@@ -3,7 +3,6 @@ package redis_read
 import (
 	"chat-room-go/api/router/rr"
 	"errors"
-	"github.com/spf13/viper"
 	"strings"
 )
 
@@ -20,25 +19,25 @@ import (
 var (
 	RoomsKey    = "rooms"
 	RoomInfoKey = "room_info"
+	RoomUserKey = "room_user"
 )
 
 // RoomExists room is exist
 func RoomExists(roomID string) (int, error) {
-	//rsRoomKey := viper.GetString("redis.room_key")
+	//rsRoomKey := viper.GetString("redis_write.room_key")
 	return rs.HExists(RoomInfoKey, roomID)
 	//return rs.SExists(rsRoomKey, roomID)
 }
 
 // UserExistRoom user is exists room
 func UserExistRoom(userName string) (int, error) {
-	rsRoomUserKey := viper.GetString("redis.room_user_key")
-	return rs.HExists(rsRoomUserKey, userName)
+
+	return rs.HExists(RoomUserKey, userName)
 }
 
-// GetUserInRoom 获取当前用的所在的房间ID
+// GetUserInRoom 获取当前用户所在的房间ID
 func GetUserInRoom(username string) (string, error) {
-	rsRoomUserKey := viper.GetString("redis.room_user_key")
-	roomID, err := rs.HGet(rsRoomUserKey, username)
+	roomID, err := rs.HGet(RoomUserKey, username)
 	return roomID.(string), err
 }
 

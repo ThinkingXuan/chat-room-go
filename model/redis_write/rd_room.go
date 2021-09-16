@@ -1,11 +1,10 @@
-package redis
+package redis_write
 
 import (
 	"chat-room-go/api/router/rr"
 	"chat-room-go/util"
 	"errors"
 	"github.com/golang/glog"
-	"github.com/spf13/viper"
 	"strings"
 )
 
@@ -22,6 +21,7 @@ import (
 var (
 	RoomsKey    = "rooms"
 	RoomInfoKey = "room_info"
+	RoomUserKey = "room_user"
 )
 
 // CreateRoom Redis create a room
@@ -32,20 +32,16 @@ func CreateRoom(roomID string, roomName string) (int, error) {
 
 // RoomExists room is exist
 func RoomExists(roomID string) (int, error) {
-	//rsRoomKey := viper.GetString("redis.room_key")
 	return rs.HExists(RoomInfoKey, roomID)
-	//return rs.SExists(rsRoomKey, roomID)
 }
 
 // UserExistRoom user is exists room
 func UserExistRoom(userName string) (int, error) {
-	rsRoomUserKey := viper.GetString("redis.room_user_key")
-	return rs.HExists(rsRoomUserKey, userName)
+	return rs.HExists(RoomUserKey, userName)
 }
 
 // EnterRoom user enter room
 func EnterRoom(roomID string, username string) (int, error) {
-	rsRoomUserKey := viper.GetString("redis.room_user_key")
 	// todo 需要事务控制
 	// 放入users列表
 	flag, err := rs.SPut(roomID, username)
@@ -54,13 +50,12 @@ func EnterRoom(roomID string, username string) (int, error) {
 		return 0, err
 	}
 	// 放入room_user map
-	flag, err = rs.HPut(rsRoomUserKey, username, roomID)
+	flag, err = rs.HPut(RoomUserKey, username, roomID)
 	return flag, err
 }
 
 // LeaveRoom user leave room
 func LeaveRoom(roomID string, username string) (int, error) {
-	rsRoomUserKey := viper.GetString("redis.room_user_key")
 	// todo 需要事务控制
 	// 清除users列表
 	flag, err := rs.SDel(roomID, username)
@@ -69,14 +64,13 @@ func LeaveRoom(roomID string, username string) (int, error) {
 		return 0, err
 	}
 	// 清除room_user map
-	flag, err = rs.HDel(rsRoomUserKey, username)
+	flag, err = rs.HDel(RoomUserKey, username)
 	return flag, err
 }
 
 // GetUserInRoom 获取当前用的所在的房间ID
 func GetUserInRoom(username string) (string, error) {
-	rsRoomUserKey := viper.GetString("redis.room_user_key")
-	roomID, err := rs.HGet(rsRoomUserKey, username)
+	roomID, err := rs.HGet(RoomUserKey, username)
 	return roomID.(string), err
 }
 

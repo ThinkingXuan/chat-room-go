@@ -4,8 +4,8 @@ import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
 	"chat-room-go/internal/jwtauth"
-	"chat-room-go/model/redis"
 	"chat-room-go/model/redis_read"
+	"chat-room-go/model/redis_write"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,7 +30,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	flag, err := redis.CreateUser(&reqUser)
+	flag, err := redis_write.CreateUser(&reqUser)
 	if flag != 1 || err != nil {
 		response.MakeFail(c, "insert err")
 		return
