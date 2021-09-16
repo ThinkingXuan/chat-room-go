@@ -6,18 +6,17 @@ import (
 	"chat-room-go/internal/run"
 	"chat-room-go/util"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"sort"
 	"time"
 )
 
-func UpdateCluster(c *gin.Context) {
+func UpdateCluster(c *fiber.Ctx) error {
 
 	var reqClusterIP rr.ReqClusterIP
-	if err := c.ShouldBindJSON(&reqClusterIP); err != nil {
-		response.MakeFail(c, "param err")
-		return
+	if err := c.BodyParser(&reqClusterIP); err != nil {
+		return response.MakeFail(c, "param err")
 	}
 
 	// sort
@@ -33,8 +32,7 @@ func UpdateCluster(c *gin.Context) {
 	}
 
 	if len(localIP) <= 0 || peerNum == -1 {
-		response.MakeFail(c, "ip address get failure")
-		return
+		return response.MakeFail(c, "ip address get failure")
 	}
 
 	// 非master节点延迟2s
@@ -60,8 +58,7 @@ func UpdateCluster(c *gin.Context) {
 	_, err = util.ExecShell(fmt.Sprintf("sudo sh config/script/rediscluster/sentinel.sh %s", reqClusterIP[0]))
 
 	if err != nil {
-		response.MakeFail(c, "redis_write or sentinel start failure")
-		return
+		return response.MakeFail(c, "redis_write or sentinel start failure")
 	}
 
 	// host
@@ -75,18 +72,18 @@ func UpdateCluster(c *gin.Context) {
 	// host write to file
 	util.WriteWithFile("./ip-address", hostStr)
 
-	response.MakeSuccessString(c, "success")
+	return response.MakeSuccessString(c, "success")
 }
 
-func CheckCluster(c *gin.Context) {
+func CheckCluster(c *fiber.Ctx) error {
 
 	rc, _ := run.ReadRedisSentinelConfig()
 
 	// init redis_write write sentinel client
 	err := run.StartRedisWriteConnection(rc)
 	if err != nil {
-		response.MakeFail(c, "redis_write client start failure")
-		return
+		return response.MakeFail(c, "redis_write client start failure")
+
 	}
 
 	time.Sleep(1 * time.Second)
@@ -94,8 +91,7 @@ func CheckCluster(c *gin.Context) {
 	// init redis_write read sentinel client
 	err = run.StartRedisReadWriteConnection()
 	if err != nil {
-		response.MakeFail(c, "redis_write client start failure")
-		return
+		return response.MakeFail(c, "redis_write client start failure")
 	}
-	response.MakeSuccessString(c, "success")
+	return response.MakeSuccessString(c, "success")
 }

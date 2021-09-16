@@ -6,94 +6,84 @@ import (
 	"chat-room-go/model/redis_read"
 	"chat-room-go/model/redis_write"
 	"chat-room-go/util"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 // CreateRoom Create a room
-func CreateRoom(c *gin.Context) {
+func CreateRoom(c *fiber.Ctx) error {
 	//username := c.MustGet("username").(string)
 	var reqRoom rr.ReqRoom
-	if err := c.ShouldBindJSON(&reqRoom); err != nil {
-		response.MakeFail(c, "param err")
-		return
+	if err := c.BodyParser(&reqRoom); err != nil {
+		return response.MakeFail(c, "param err")
 	}
 	if len(reqRoom.Name) <= 0 {
-		response.MakeFail(c, "Invalid input")
-		return
+		return response.MakeFail(c, "Invalid input")
 	}
 
 	// create a room id
 	roomID := util.GetSnowflakeID2()
 
-	// write to redis_write： crate a room zset
+	// write to redis： crate a room zset
 	flag, err := redis_write.CreateRoom(roomID, reqRoom.Name)
 	if err != nil || flag != 1 {
-		response.MakeFail(c, "create room err")
-		return
+		return response.MakeFail(c, "create room err")
 	}
-	//	write to redis_write： crate a room info
+	//	write to redis： crate a room info
 	flag, err = redis_write.CreateRoomInfo(roomID, reqRoom.Name)
 	if err != nil || flag != 1 {
-		response.MakeFail(c, "create room err")
-		return
+		return response.MakeFail(c, "create room err")
+
 	}
 
-	response.MakeSuccessString(c, roomID)
+	return response.MakeSuccessString(c, roomID)
 
 }
 
 // GetOneRoomInfo Get a room information by roomID
-func GetOneRoomInfo(c *gin.Context) {
-	roomID := c.Param("roomid")
+func GetOneRoomInfo(c *fiber.Ctx) error {
+	roomID := c.Params("roomid")
 	if len(roomID) <= 0 {
-		response.MakeFail(c, "param err")
-		return
+		return response.MakeFail(c, "param err")
 	}
 
 	roomName, err := redis_read.GetRoomInfo(roomID)
 	if len(roomName) <= 0 || err != nil {
-		response.MakeFail(c, "Invalid Room ID")
-		return
+		return response.MakeFail(c, "Invalid Room ID")
 	}
-	response.MakeSuccessString(c, roomName)
+	return response.MakeSuccessString(c, roomName)
 }
 
 // GetRoomList Get room page list
-func GetRoomList(c *gin.Context) {
+func GetRoomList(c *fiber.Ctx) error {
 	var reqPage rr.ReqPage
-	if err := c.ShouldBindJSON(&reqPage); err != nil {
-		response.MakeFail(c, "param err")
-		return
+	if err := c.BodyParser(&reqPage); err != nil {
+		return response.MakeFail(c, "param err")
 	}
 
 	if reqPage.PageSize < 0 || reqPage.PageIndex < 0 {
-		response.MakeFail(c, "param err")
-		return
+		return response.MakeFail(c, "param err")
 	}
 
 	rooms, err := redis_read.SelectRoomListPage(reqPage.PageIndex, reqPage.PageSize)
 	if err != nil {
-		response.MakeFail(c, "select err")
-		return
+		return response.MakeFail(c, "select err")
 	}
-	response.MakeSuccessJSON(c, rooms)
+	return response.MakeSuccessJSON(c, rooms)
 }
 
 // EnterRoom user enter room
-func EnterRoom(c *gin.Context) {
-	username := c.MustGet("username").(string)
-	roomID := c.Param("roomid")
+func EnterRoom(c *fiber.Ctx) error {
+	username := c.Locals("username").(string)
+	roomID := c.Params("roomid")
 	// 参数校验
 	if len(roomID) <= 0 {
-		response.MakeFail(c, "Invalid Room ID")
-		return
+		return response.MakeFail(c, "Invalid Room ID")
 	}
 
 	// 判断房间是否存在
 	flag, err := redis_read.RoomExists(roomID)
 	if err != nil || flag != 1 {
-		response.MakeFail(c, "Invalid Room ID")
-		return
+		return response.MakeFail(c, "Invalid Room ID")
 	}
 
 	//获取所在房间的ID
@@ -101,59 +91,53 @@ func EnterRoom(c *gin.Context) {
 
 	// 现在所在房间为要进入的房间
 	if oldRoomID == roomID {
-		response.MakeSuccessString(c, "enter the Room success")
-		return
+		return response.MakeSuccessString(c, "enter the Room success")
 	}
 	// 现在所在房间为不是自己要进入的房间
 	if len(oldRoomID) > 0 {
 		// 离开房间
 		_, err := redis_write.LeaveRoom(oldRoomID, username)
 		if err != nil {
-			response.MakeFail(c, "leave Room failure")
+			return response.MakeFail(c, "leave Room failure")
 		}
 	}
 
 	// 进入此房间
 	flag, err = redis_write.EnterRoom(roomID, username)
 	if err != nil || flag != 1 {
-		response.MakeFail(c, "enter Room failure")
-		return
+		return response.MakeFail(c, "enter Room failure")
 	}
-	response.MakeSuccessString(c, "enter the Room success")
+	return response.MakeSuccessString(c, "enter the Room success")
 }
 
 // LeaveRoom user leaven room
-func LeaveRoom(c *gin.Context) {
-	username := c.MustGet("username").(string)
+func LeaveRoom(c *fiber.Ctx) error {
+	username := c.Locals("username").(string)
 
 	//获取所在房间的ID
 	oldRoomID, _ := redis_read.GetUserInRoom(username)
 	// 用户不在房间
 	if len(oldRoomID) <= 0 {
-		response.MakeFail(c, "leave Room failure")
-		return
+		return response.MakeFail(c, "leave Room failure")
 	}
 	flag, err := redis_write.LeaveRoom(oldRoomID, username)
 	if err != nil || flag != 1 {
-		response.MakeFail(c, "leave Room failure")
-		return
+		return response.MakeFail(c, "leave Room failure")
 	}
-	response.MakeSuccessString(c, "left the room")
+	return response.MakeSuccessString(c, "left the room")
 }
 
 // RoomAllUser get room all user list
-func RoomAllUser(c *gin.Context) {
-	roomID := c.Param("roomid")
+func RoomAllUser(c *fiber.Ctx) error {
+	roomID := c.Params("roomid")
 	if len(roomID) <= 0 {
-		response.MakeFail(c, "Invalid Room ID")
-		return
+		return response.MakeFail(c, "Invalid Room ID")
 	}
 
 	roomUser, err := redis_read.GetRoomAllUser(roomID)
 	if err != nil || len(roomUser) < 0 {
-		response.MakeFail(c, "get users failure")
-		return
+		return response.MakeFail(c, "get users failure")
 	}
 
-	response.MakeSuccessJSON(c, roomUser)
+	return response.MakeSuccessJSON(c, roomUser)
 }

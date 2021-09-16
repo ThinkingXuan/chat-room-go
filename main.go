@@ -4,8 +4,7 @@ import (
 	"chat-room-go/api/router"
 	"chat-room-go/config"
 	"chat-room-go/internal/run"
-	"github.com/gin-contrib/gzip"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang/glog"
 	"github.com/spf13/viper"
 )
@@ -24,24 +23,12 @@ func main() {
 	// start redis_write sentinel and client connection
 	run.StartRedisSentinelAndClientConnection()
 
-	// init gin engine
-	runMode := viper.GetString("runmode")
-	g := gin.New()
-
-	switch runMode {
-	case "release":
-	case "debug":
-		g.Use(gin.Recovery())
-		g.Use(gin.Logger())
-	}
-	// set gin run mode
-	gin.SetMode(runMode)
-
-	// init gin router and middleware
-	r := router.Load(g, gzip.Gzip(gzip.DefaultCompression))
+	// init fiber engine
+	// init router and middleware
+	r := router.Load(fiber.New())
 
 	// run gin service
-	if err := r.Run(viper.GetString("url")); err != nil {
+	if err := r.Listen(viper.GetString("url")); err != nil {
 		glog.Info(err)
 	}
 }
