@@ -58,12 +58,18 @@ type ZSETInterface interface {
 	ZsRevRange(key string, index, size int) ([]string, error)
 }
 
+// MultiSend 批处理操作
+type MultiSend interface {
+	CreateRoomAndRoomInfo(roomID, roomName string) error
+}
+
 // RedisInterface  redis所有操作的接口
 type RedisInterface interface {
 	ListInterface
 	HashInterface
 	SETInterface
 	ZSETInterface
+	MultiSend
 }
 
 // NewRedisSentinel create a redis sentinel
@@ -173,4 +179,51 @@ func CheckMasterStatus(sentinel *sentinel.Sentinel) {
 		}
 		//log.Println("cluster healthy!!")
 	}
+}
+
+// NewRedis create a redis connect
+func NewRedis() (RedisInterface, error) {
+	host := "127.0.0.1"
+	port := "6379"
+	password := "123456"
+	return ProduceRedis(host, port, password, 0, 100, true)
+}
+
+// ProduceRedis 工厂函数，要求对应的结构体必须实现 RedisInterface 中的所有方法
+// 如果只想实现某一些方法，就返回"有这些方法的结构体"就好了
+func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) (RedisInterface, error) {
+
+	// 要求RRedis结构体实现返回的接口中所有的方法！
+	redisObj := &RRedis{
+		maxIdle:        180,
+		maxActive:      200,
+		maxIdleTimeout: time.Duration(60) * time.Second,
+		maxTimeout:     time.Duration(30) * time.Second,
+		lazyLimit:      lazyLimit,
+		maxSize:        maxSize,
+	}
+
+	// 建立连接池
+	redisObj.redisCli = &redis.Pool{
+		MaxIdle:     redisObj.maxIdle,
+		MaxActive:   redisObj.maxActive,
+		IdleTimeout: redisObj.maxIdleTimeout,
+		Wait:        true,
+		Dial: func() (redis.Conn, error) {
+			con, err := redis.Dial(
+				"tcp",
+				host+":"+port, // address
+				redis.DialPassword(password),
+				redis.DialDatabase(int(db)),
+				redis.DialConnectTimeout(redisObj.maxTimeout),
+				redis.DialReadTimeout(redisObj.maxTimeout),
+				redis.DialWriteTimeout(redisObj.maxTimeout),
+			)
+			if err != nil {
+				return nil, err
+			}
+			return con, nil
+		},
+	}
+	return redisObj, nil
 }

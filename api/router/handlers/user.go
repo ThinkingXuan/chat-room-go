@@ -5,7 +5,7 @@ import (
 	"chat-room-go/api/router/rr"
 	"chat-room-go/internal/jwtauth"
 	"chat-room-go/model/redis_read"
-	"chat-room-go/model/redis_write"
+	"chat-room-go/service"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,21 +17,15 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	// param validator
-	//isOk := userInfoValidator(reqUser)
 	if len(reqUser.Username) <= 0 || len(reqUser.Password) <= 0 || len(reqUser.FirstName) <= 0 || len(reqUser.LastName) <= 0 || len(reqUser.Email) <= 0 || len(reqUser.Phone) <= 0 {
 		return response.MakeFail(c, "param err")
 	}
-	// 用户存在
-	flag, _ := redis_read.UserExist(reqUser.Username)
-	if flag == 1 {
-		return response.MakeFail(c, "user exist")
+
+	err := service.CreateUser(&reqUser)
+	if err != nil {
+		return response.MakeFail(c, err.Error())
 	}
 
-	flag, err := redis_write.CreateUser(&reqUser)
-	if flag != 1 || err != nil {
-		return response.MakeFail(c, "insert err")
-
-	}
 	return response.MakeSuccessString(c, "successful operation")
 }
 
@@ -44,13 +38,11 @@ func UserLogin(c *fiber.Ctx) error {
 	if len(username) <= 0 || len(password) <= 0 {
 		return response.MakeFail(c, "Invalid username or password.")
 	}
-
-	// 查询用户是否存在,查询用户是否存在并判断密码是否正确
-	dbUser, err := redis_read.GetUser(username)
-	if err != nil || dbUser == nil || dbUser.Password != password {
-		return response.MakeFail(c, "username or password error")
+	err := service.UserLogin(username, password)
+	if err != nil {
+		return response.MakeFail(c, err.Error())
 	}
-
+	// JWT Token
 	tokenString, err := jwtauth.GenToken(username)
 	if err != nil {
 		return response.MakeFail(c, "generate jwt token failed")

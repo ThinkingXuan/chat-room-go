@@ -9,7 +9,7 @@ require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/validator/v10 v10.7.0 // indirect
-	github.com/gofiber/fiber/v2 v2.18.0 // indirect
+	github.com/gofiber/fiber/v2 v2.18.0
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/hashicorp/go-uuid v1.0.1

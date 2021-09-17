@@ -23,11 +23,10 @@ func main() {
 	// start redis_write sentinel and client connection
 	run.StartRedisSentinelAndClientConnection()
 
-	// init fiber engine
-	// init router and middleware
+	// init fiber router and middleware
 	r := router.Load(fiber.New())
 
-	// run gin service
+	// run fiber service
 	if err := r.Listen(viper.GetString("url")); err != nil {
 		glog.Info(err)
 	}

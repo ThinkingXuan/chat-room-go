@@ -64,7 +64,7 @@ func GetLocalShortIP() string {
 	return shorts[len(shorts)-1]
 }
 
-// GetLocalIntShortIP 获取本机IP的最后一段地址的int64类型，用户生成雪花ID的节点值
+// GetLocalIntShortIP 获取本机IP的最后一段地址的int64类型，用于生成雪花ID的节点值
 func GetLocalIntShortIP() int64 {
 	ipShortInt, _ := strconv.Atoi(GetLocalIP())
 	return int64(ipShortInt)

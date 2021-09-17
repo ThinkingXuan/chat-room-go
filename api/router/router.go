@@ -11,24 +11,28 @@ import (
 // Load load the middlewares, routers
 func Load(e *fiber.App) *fiber.App {
 
+	// compress
 	e.Use(compress.New())
 
 	// user router
 	user := e.Group("/")
 	{
-		user.Post("/user", handlers.CreateUser)                    // Create user
-		user.Get("/userLogin", handlers.UserLogin)                 // Logs user into the system
+		user.Post("/user", handlers.CreateUser)    // Create user
+		user.Get("/userLogin", handlers.UserLogin) // Logs user into the system
+		// cache
 		user.Get("/user/:username", cache.New(), handlers.GetUser) // Get user by user name
 	}
+
 	// room router
 	room := e.Group("/")
 	{
 		room.Post("/room", middleware.JWTAuth(), handlers.CreateRoom)             // Create a new room
 		room.Put("/room/:roomid/enter", middleware.JWTAuth(), handlers.EnterRoom) // Enter a room
 		room.Put("/roomLeave", middleware.JWTAuth(), handlers.LeaveRoom)          // Leave a root
-		room.Get("/room/:roomid", cache.New(), handlers.GetOneRoomInfo)           // Get the room info
-		room.Get("/room/:roomid/users", handlers.RoomAllUser)                     // Get user list in a room, only username in list
-		room.Post("/roomList", handlers.GetRoomList)                              // Get the room list
+		// cache
+		room.Get("/room/:roomid", cache.New(), handlers.GetOneRoomInfo) // Get the room info
+		room.Get("/room/:roomid/users", handlers.RoomAllUser) // Get user list in a room, only username in list
+		room.Post("/roomList", handlers.GetRoomList)          // Get the room list
 	}
 
 	// message router
