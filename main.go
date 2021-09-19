@@ -24,6 +24,12 @@ func main() {
 	// start redis_write sentinel and client connection
 	run.StartRedisSentinelAndClientConnection()
 
+	// init leveldb
+	//err = myleveldb.InitLevelDB()
+	//if err != nil {
+	//	glog.Error(err)
+	//}
+
 	// init gin engine
 	runMode := viper.GetString("runmode")
 	g := gin.New()

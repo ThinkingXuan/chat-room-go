@@ -4,6 +4,8 @@ import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
 	"chat-room-go/internal/run"
+	"chat-room-go/model/redis_read"
+	"chat-room-go/model/redis_write"
 	"chat-room-go/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -82,6 +84,10 @@ func CheckCluster(c *gin.Context) {
 
 	rc, _ := run.ReadRedisSentinelConfig()
 
+	// close redis
+	redis_write.CloseRedis()
+	redis_read.CloseRedis()
+
 	// init redis_write write sentinel client
 	err := run.StartRedisWriteConnection(rc)
 	if err != nil {
@@ -92,7 +98,7 @@ func CheckCluster(c *gin.Context) {
 	time.Sleep(1 * time.Second)
 
 	// init redis_write read sentinel client
-	err = run.StartRedisReadWriteConnection()
+	err = run.StartRedisReadConnection()
 	if err != nil {
 		response.MakeFail(c, "redis_write client start failure")
 		return

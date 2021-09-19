@@ -3,8 +3,7 @@ package handlers
 import (
 	"chat-room-go/api/router/response"
 	"chat-room-go/api/router/rr"
-	"chat-room-go/model/redis_read"
-	"chat-room-go/model/redis_write"
+	"chat-room-go/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,16 +22,8 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 
-	roomID, err := redis_read.GetUserInRoom(username)
-	if err != nil || len(roomID) <= 0 {
-		response.MakeFail(c, "user no exist room")
-		return
-	}
-	reqMsg.RoomID = roomID
-
-	flag, err := redis_write.CreateMessage(&reqMsg)
-	if err != nil || flag != 1 {
-		response.MakeFail(c, "insert err")
+	if err := service.SendMessage(username, &reqMsg); err != nil {
+		response.MakeFail(c, err.Error())
 		return
 	}
 
@@ -60,15 +51,9 @@ func GetMessageList(c *gin.Context) {
 		return
 	}
 
-	roomID, err := redis_read.GetUserInRoom(username)
-	if err != nil || len(roomID) <= 0 {
-		response.MakeFail(c, "user no exist room")
-		return
-	}
-
-	messages, err := redis_read.SelectMessageListPage(roomID, reqPage.PageIndex, reqPage.PageSize)
+	messages, err := service.GetMessageList(username, &reqPage)
 	if err != nil {
-		response.MakeFail(c, "select err")
+		response.MakeFail(c, err.Error())
 		return
 	}
 	response.MakeSuccessJSON(c, messages)

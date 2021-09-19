@@ -332,3 +332,17 @@ func (r *RRedis) ZsRevRange(key string, index, size int) (res []string, err erro
 	}
 	return res, nil
 }
+
+func (r *RRedis) CreateRoomAndRoomInfo(roomID, roomName string) error {
+	rc := r.getRedisConn()
+	defer rc.Close()
+	_ = rc.Send("ZADD", RoomsKey, util.GetSnowflakeInt2(), roomID+"#"+roomName)
+	_ = rc.Send("HSET", RoomInfoKey, roomID, roomName)
+	rc.Flush()
+	v, _ := rc.Receive()
+
+	if  v.(int64) != 1 {
+		return errors.New("create room and room info error")
+	}
+	return nil
+}

@@ -49,7 +49,7 @@ func StartRedisSentinel(rc RedisConnect) {
 	// 连接还存活的redis集群，目的是启动集群，通过获取master节点ip地址
 	_ = redis_write.InitRedisSentinel(rc.host, rc.masterName, rc.password)
 	// 延迟2s
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 2)
 	// 获取master节点地址  ip:端口
 	masterIP := redis_write.GetRedisMasterIP()
 	// 去除端口号
@@ -70,9 +70,9 @@ func StartRedisSentinel(rc RedisConnect) {
 // startClientConnection 客户端连接
 func startClientConnectionAt(rc RedisConnect) {
 	// 延迟2s
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 2)
 	// 初始化redis的读和写的客户端连接
-	_ = StartRedisReadWriteConnection()
+	_ = StartRedisReadConnection()
 	_ = StartRedisWriteConnection(rc)
 }
 
@@ -81,7 +81,7 @@ func StartRedisWriteConnection(rc RedisConnect) error {
 
 }
 
-func StartRedisReadWriteConnection() error {
+func StartRedisReadConnection() error {
 	return redis_read.InitRedis()
 }
 
