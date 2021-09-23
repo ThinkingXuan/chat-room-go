@@ -22,14 +22,14 @@ var (
 )
 
 // CreateRoomAndRoomInfo Redis create a room
-func CreateRoomAndRoomInfo(roomID string, roomName string) error {
-	err := rs.CreateRoomAndRoomInfo(roomID, roomName)
+func CreateRoomAndRoomInfo(roomID string, roomName string, roomBytes []byte) error {
+	err := rs.CreateRoomAndRoomInfo(roomID, roomName, roomBytes)
 	return err
 }
 
 // CreateRoom Redis create a room
-func CreateRoom(roomID string, roomName string) (int, error) {
-	flag, err := rs.ZsPUT(RoomsKey, util.GetSnowflakeInt2(), roomID+"#"+roomName)
+func CreateRoom(roomByte []byte) (int, error) {
+	flag, err := rs.ZsPUT(RoomsKey, util.GetSnowflakeInt2(), roomByte)
 	return flag, err
 }
 
@@ -63,4 +63,14 @@ func LeaveRoom(roomID string, username string) (int, error) {
 	// 清除room_user map
 	flag, err = rs.HDel(RoomUserKey, username)
 	return flag, err
+}
+
+// EnterRoomMerge user enter room
+func EnterRoomMerge(roomID string, username string) error {
+	return rs.EnterRoom(roomID, username)
+}
+
+// LeaveRoomMerge user leave room
+func LeaveRoomMerge(roomID string, username string) error {
+	return rs.LeavenRoom(roomID, username)
 }

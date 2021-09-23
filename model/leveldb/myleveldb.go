@@ -12,7 +12,7 @@ var (
 //InitLevelDB 初始化leveldb数据库
 func InitLevelDB() (err error) {
 	db, err = leveldb.OpenFile("path/to/db", nil)
-	if err != nil || db == nil {
+	if err != nil  {
 		glog.Error(err)
 		return err
 	}

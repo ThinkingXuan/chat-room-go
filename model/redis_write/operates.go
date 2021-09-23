@@ -333,16 +333,46 @@ func (r *RRedis) ZsRevRange(key string, index, size int) (res []string, err erro
 	return res, nil
 }
 
-func (r *RRedis) CreateRoomAndRoomInfo(roomID, roomName string) error {
+func (r *RRedis) CreateRoomAndRoomInfo(roomID, roomName string, roomBytes []byte) error {
 	rc := r.getRedisConn()
 	defer rc.Close()
-	_ = rc.Send("ZADD", RoomsKey, util.GetSnowflakeInt2(), roomID+"#"+roomName)
+	_ = rc.Send("ZADD", RoomsKey, util.GetSnowflakeInt2(), roomBytes)
 	_ = rc.Send("HSET", RoomInfoKey, roomID, roomName)
 	rc.Flush()
 	v, _ := rc.Receive()
 
-	if  v.(int64) != 1 {
+	if v.(int64) != 1 {
 		return errors.New("create room and room info error")
+	}
+	return nil
+}
+
+func (r *RRedis) EnterRoom(roomID string, username string) error {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	_ = rc.Send("SADD", roomID, username)
+	_ = rc.Send("HSET", RoomUserKey, username, roomID)
+	rc.Flush()
+	v, _ := rc.Receive()
+
+	if v.(int64) != 1 {
+		return errors.New("enter room error")
+	}
+	return nil
+}
+
+func (r *RRedis) LeavenRoom(roomID string, username string) error {
+	rc := r.getRedisConn()
+	defer rc.Close()
+
+	_ = rc.Send("SREM", roomID, username)
+	_ = rc.Send("HDEL", RoomUserKey, username)
+	rc.Flush()
+	v, _ := rc.Receive()
+
+	if v.(int64) != 1 {
+		return errors.New("leaven room error")
 	}
 	return nil
 }

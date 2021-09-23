@@ -44,7 +44,9 @@ type SETInterface interface {
 // ZSETInterface 操作zset的接口
 type ZSETInterface interface {
 	ZsRange(key string, index, size int) ([]string, error)
+	ZsRangeBytes(key string, index, size int) ([][]byte, error)
 	ZsRevRange(key string, index, size int) ([]string, error)
+	ZsRevRangeBytes(key string, index, size int) ([][]byte, error)
 }
 
 // RedisInterface  redis所有操作的接口

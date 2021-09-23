@@ -2,6 +2,7 @@ package service
 
 import (
 	"chat-room-go/api/router/rr"
+	myleveldb "chat-room-go/model/leveldb"
 	"chat-room-go/model/redis_read"
 	"chat-room-go/model/redis_write"
 	"encoding/json"
@@ -9,21 +10,16 @@ import (
 )
 
 func CreateUser(reqUser *rr.ReqUser) error {
-	// 用户存在时CreateUser时 flag = 0
-	//flag, _ := redis_read.UserExist(reqUser.Username)
-	//if flag == 1 {
-	//	return errors.New("user exist")
-	//}
 
 	// 写入leveldb
 	reqUserBytes, _ := json.Marshal(reqUser)
-	//err := myleveldb.CreateUser(reqUser.Username, reqUserBytes)
-	//if err != nil {
-	//	return errors.New("leveldb insert err")
-	//}
+	err := myleveldb.CreateUser(reqUser.Username, reqUserBytes)
+	if err != nil {
+		return errors.New("leveldb insert err")
+	}
 	// 写入redis
 	flag, err := redis_write.CreateUser(reqUser.Username, reqUserBytes)
-	if flag != 1 || err != nil {
+	if flag != 1 || err != nil { // 用户存在时 flag = 0
 		return errors.New("insert err")
 	}
 	return nil

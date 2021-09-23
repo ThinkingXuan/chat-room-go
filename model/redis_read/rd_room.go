@@ -2,8 +2,8 @@ package redis_read
 
 import (
 	"chat-room-go/api/router/rr"
+	"encoding/json"
 	"errors"
-	"strings"
 )
 
 /* Redis数据结构
@@ -53,17 +53,17 @@ func GetRoomInfo(roomID string) (string, error) {
 }
 
 // SelectRoomListPage 分页获取房间列表
-func SelectRoomListPage(index, size int) (message []rr.ResRoom, err error) {
+func SelectRoomListPage(index, size int) ([]rr.ResRoom, error) {
 
-	rooms, err := rs.ZsRange(RoomsKey, index, size)
-	resRoom := make([]rr.ResRoom, len(rooms))
-	for index, value := range rooms {
-		values := strings.Split(value, "#")
-		resRoom[index].ID = values[0]
-		resRoom[index].Name = values[1]
+	roomsBytes, err := rs.ZsRangeBytes(RoomsKey, index, size)
+	var resRooms []rr.ResRoom
+	for _, value := range roomsBytes {
+		var resRoom rr.ResRoom
+		_ = json.Unmarshal(value, &resRoom)
+		resRooms = append(resRooms, resRoom)
 	}
-	if len(resRoom) <= 0 || err != nil {
+	if len(resRooms) <= 0 || err != nil {
 		return nil, errors.New("over max page")
 	}
-	return resRoom, nil
+	return resRooms, nil
 }

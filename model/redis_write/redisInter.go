@@ -60,9 +60,9 @@ type ZSETInterface interface {
 
 // MultiSend 批处理操作
 type MultiSend interface {
-	CreateRoomAndRoomInfo(roomID, roomName string) error
-	//EnterRoom() error
-	//LeavenRoom() error
+	CreateRoomAndRoomInfo(roomID, roomName string, roomBytes []byte) error
+	EnterRoom(roomID string, username string) error
+	LeavenRoom(roomID string, username string) error
 }
 
 // RedisInterface  redis所有操作的接口
@@ -196,7 +196,7 @@ func NewRedis() (RedisInterface, error) {
 func ProduceRedis(host, port, password string, db, maxSize int, lazyLimit bool) (RedisInterface, error) {
 
 	maxActive := 200
-	maxIdle:= 180
+	maxIdle := 180
 
 	// 要求RRedis结构体实现返回的接口中所有的方法！
 	redisObj := &RRedis{

@@ -4,6 +4,7 @@ import (
 	"chat-room-go/api/router"
 	"chat-room-go/config"
 	"chat-room-go/internal/run"
+	myleveldb "chat-room-go/model/leveldb"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
@@ -24,11 +25,13 @@ func main() {
 	// start redis_write sentinel and client connection
 	run.StartRedisSentinelAndClientConnection()
 
+	run.StartRedisReadConnection()
+
 	// init leveldb
-	//err = myleveldb.InitLevelDB()
-	//if err != nil {
-	//	glog.Error(err)
-	//}
+	err = myleveldb.InitLevelDB()
+	if err != nil {
+		glog.Error(err)
+	}
 
 	// init gin engine
 	runMode := viper.GetString("runmode")

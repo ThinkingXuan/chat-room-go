@@ -324,6 +324,26 @@ func (r *RRedis) ZsRange(key string, index, size int) (res []string, err error) 
 	return res, nil
 }
 
+// ZsRangeBytes ZSet分页遍历
+func (r *RRedis) ZsRangeBytes(key string, index, size int) (res [][]byte, err error) {
+	rc := r.getRedisConn()
+	defer rc.Close()
+	// start index
+	start := util.IndexToPage(index, size)
+	// stop index
+	stop := start + size - 1
+
+	if stop < 0 {
+		return [][]byte{}, nil
+	}
+
+	res, err = redis.ByteSlices(rc.Do("ZRANGE", key, start, stop))
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 // ZsRevRange ZSet分页倒序遍历
 func (r *RRedis) ZsRevRange(key string, index, size int) (res []string, err error) {
 
@@ -339,6 +359,27 @@ func (r *RRedis) ZsRevRange(key string, index, size int) (res []string, err erro
 	}
 
 	res, err = redis.Strings(rc.Do("ZREVRANGE", key, start, stop))
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// ZsRevRangeBytes ZSet分页倒序遍历
+func (r *RRedis) ZsRevRangeBytes(key string, index, size int) (res [][]byte, err error) {
+
+	rc := r.getRedisConn()
+	defer rc.Close()
+	// start index
+	start := util.IndexToPage(index, size)
+	// stop index
+	stop := start + size - 1
+
+	if stop < 0 {
+		return [][]byte{}, nil
+	}
+
+	res, err = redis.ByteSlices(rc.Do("ZREVRANGE", key, start, stop))
 	if err != nil {
 		return nil, err
 	}

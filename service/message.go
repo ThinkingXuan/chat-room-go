@@ -2,8 +2,11 @@ package service
 
 import (
 	"chat-room-go/api/router/rr"
+	myleveldb "chat-room-go/model/leveldb"
 	"chat-room-go/model/redis_read"
 	"chat-room-go/model/redis_write"
+	"chat-room-go/util"
+	"encoding/json"
 	"errors"
 )
 
@@ -16,13 +19,21 @@ func SendMessage(username string, reqMsg *rr.ReqMessage) error {
 	}
 	reqMsg.RoomID = roomID
 
+	resMessage := rr.ResMessage{
+		ID:        reqMsg.ID,
+		Text:      reqMsg.Text,
+		Timestamp: util.GetNowTimeUnixNanoString(),
+	}
+
+	resMessageByte, _ := json.Marshal(&resMessage)
+
 	// message写入leveldb
-	//err = myleveldb.CreateMessage(reqMsg)
-	//if err != nil {
-	//	return errors.New("leveldb insert err")
-	//}
+	err = myleveldb.CreateMessage(reqMsg.RoomID, resMessageByte)
+	if err != nil {
+		return errors.New("leveldb insert err")
+	}
 	// message写入redis
-	flag, err := redis_write.CreateMessage(reqMsg)
+	flag, err := redis_write.CreateMessage(reqMsg.RoomID, resMessageByte)
 	if err != nil || flag != 1 {
 		return errors.New("insert err")
 	}

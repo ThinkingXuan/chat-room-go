@@ -1,8 +1,6 @@
 package myleveldb
 
 import (
-	"chat-room-go/api/router/rr"
-	"encoding/json"
 	"github.com/golang/glog"
 )
 
@@ -14,10 +12,9 @@ var (
 )
 
 // CreateMessage create a message
-func CreateMessage(reqMsg *rr.ReqMessage) error {
-	key := messageKey + "." + reqMsg.ID
-	userBytes, err := json.Marshal(reqMsg)
-	err = db.Put([]byte(key), userBytes, nil)
+func CreateMessage(messageID string, reqMsgBytes []byte) error {
+	key := messageKey + "." + messageID
+	err := db.Put([]byte(key), reqMsgBytes, nil)
 	if err != nil {
 		glog.Error(err)
 		return err

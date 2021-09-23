@@ -2,27 +2,42 @@ package service
 
 import (
 	"chat-room-go/api/router/rr"
+	myleveldb "chat-room-go/model/leveldb"
 	"chat-room-go/model/redis_read"
 	"chat-room-go/model/redis_write"
+	"encoding/json"
 	"errors"
 )
 
 func CreateRoom(roomID string, roomName string) error {
+
+	// 序列化
+	resRoom := rr.ResRoom{
+		Name: roomName,
+		ID:   roomID,
+	}
+	resRoomByte, _ := json.Marshal(&resRoom)
+
 	// room写入leveldb
-	//err := myleveldb.CreateRoom(roomID, roomName)
-	//if err != nil {
-	//	return err
-	//}
+	err := myleveldb.CreateRoom(roomID, roomName)
+	if err != nil {
+		return err
+	}
+
 	// room写入redis
 	// write to redis： crate a room zset
-	flag, err := redis_write.CreateRoom(roomID, roomName)
-	if err != nil || flag != 1 {
-		return errors.New("create room err")
-	}
-	//	write to redis： crate a room info
-	flag, err = redis_write.CreateRoomInfo(roomID, roomName)
-	if err != nil || flag != 1 {
-		return errors.New("create room err")
+	//flag, err := redis_write.CreateRoom(resRoomByte)
+	//if err != nil || flag != 1 {
+	//	return errors.New("create room err")
+	//}
+	////	write to redis： crate a room info
+	//flag, err = redis_write.CreateRoomInfo(roomID, roomName)
+	//if err != nil || flag != 1 {
+	//	return errors.New("create room err")
+	//}
+	err = redis_write.CreateRoomAndRoomInfo(roomID, roomName, resRoomByte)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -60,14 +75,14 @@ func EnterRoom(roomID string, username string) error {
 	// 现在所在房间为不是自己要进入的房间
 	if len(oldRoomID) > 0 {
 		// 离开房间
-		_, err := redis_write.LeaveRoom(oldRoomID, username)
+		err := redis_write.LeaveRoomMerge(oldRoomID, username)
 		if err != nil {
 			return errors.New("leave Room failure")
 		}
 	}
 	// 进入此房间
-	flag, err = redis_write.EnterRoom(roomID, username)
-	if err != nil || flag != 1 {
+	err = redis_write.EnterRoomMerge(roomID, username)
+	if err != nil {
 		return errors.New("enter room failure")
 
 	}
@@ -82,8 +97,8 @@ func LeaveRoom(username string) error {
 	if len(oldRoomID) <= 0 {
 		return errors.New("leave Room failure")
 	}
-	flag, err := redis_write.LeaveRoom(oldRoomID, username)
-	if err != nil || flag != 1 {
+	err := redis_write.LeaveRoomMerge(oldRoomID, username)
+	if err != nil {
 		return errors.New("leave Room failure")
 	}
 	return nil
