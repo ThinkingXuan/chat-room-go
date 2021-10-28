@@ -17,8 +17,8 @@ type Model struct {
 	CreatedAt time.Time `json:"created_at" gorm:"index:idx_create_at"`
 }
 
-//InitSQLite 初始化数据库
-func InitSQLite() (err error) {
+//InitMySql 初始化数据库
+func InitMySql() (err error) {
 
 	// 获取SQLite存储路径
 	//SQLitePath := viper.GetString("sqlite_path")

@@ -22,6 +22,7 @@ func SendMessage(username string, reqMsg *rr.ReqMessage) error {
 	resMessage := rr.ResMessage{
 		ID:        reqMsg.ID,
 		Text:      reqMsg.Text,
+
 		Timestamp: util.GetNowTimeUnixNanoString(),
 	}
 

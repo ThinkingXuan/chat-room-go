@@ -8,7 +8,7 @@ require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cache v1.1.0
-	github.com/gin-contrib/gzip v0.0.3 // indirect
+	github.com/gin-contrib/gzip v0.0.3
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/validator/v10 v10.7.0 // indirect
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529

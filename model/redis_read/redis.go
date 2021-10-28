@@ -21,8 +21,3 @@ func InitRedis() (err error) {
 func CloseRedis() {
 	rs = nil
 }
-
-//GetRedisMasterIP 获取Redis Sentinel的Master节点IP
-func GetRedisMasterIP() string {
-	return curMasterNodeIP
-}

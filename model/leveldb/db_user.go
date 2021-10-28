@@ -19,15 +19,3 @@ func CreateUser(username string, newUserBytes []byte) error {
 	}
 	return nil
 }
-
-//func SelectUserByUsername(username string) (*User, int64) {
-//	var u User
-//	rowAffect := db.Model(&User{}).Where("username = ?", username).First(&u).RowsAffected
-//	return &u, rowAffect
-//}
-//
-//func SelectResUserByUsername(username string) (*rr.ResUser, int64) {
-//	var u rr.ResUser
-//	rowAffect := db.Table("user").Where("username = ?", username).First(&u).RowsAffected
-//	return &u, rowAffect
-//}

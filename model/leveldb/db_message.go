@@ -22,34 +22,3 @@ func CreateMessage(messageID string, reqMsgBytes []byte) error {
 	return nil
 }
 
-//func SelectMessageListPage(roomID string, index, size int) (message []rr.ResMessage, err error) {
-//
-//	count := 0
-//	// 分页子查询
-//	err = db.Table("message").
-//		Select("id as idx, message_id as id, text, unix_timestamp(created_at) as timestamp").
-//		Where("id <= (?)",
-//			db.Table("message").
-//				Select("id").
-//				Where("room_id = ?", roomID).
-//				Order("id DESC").
-//				Offset(util.IndexToPage(index, size)).
-//				Limit(1).
-//				QueryExpr()).
-//		Where("room_id = ?", roomID).
-//		Order("idx DESC").
-//		Limit(size).
-//		Count(&count).
-//		Scan(&message).Error
-//
-//	// 分页超过范围
-//	if count < util.IndexToPage(index, size) && len(message) <= 0 {
-//		return nil, errors.New("over max page")
-//	}
-//
-//	if err != nil {
-//		glog.Error(err)
-//		return nil, err
-//	}
-//	return
-//}

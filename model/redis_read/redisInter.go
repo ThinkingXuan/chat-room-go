@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var curMasterNodeIP string
-
 // RedisFatherInterface 父级interface
 type RedisFatherInterface interface {
 	// 获取所有keys

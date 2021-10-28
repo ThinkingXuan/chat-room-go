@@ -1,6 +1,6 @@
 runmode: debug # 开发模式, debug, release, test
 addr: 8080 # http绑定端口
-url: :8081
+url: :8080
 
 #### MySQL配置 ####
 mysql:

@@ -14,11 +14,6 @@ var (
 	UserKey = "user"
 )
 
-// UserExist user is exists
-func UserExist(userName string) (int, error) {
-	return rs.HExists(UserKey, userName)
-}
-
 // GetUser get user info form redis_write
 func GetUser(username string) (*rr.ReqUser, error) {
 	var reqUser rr.ReqUser

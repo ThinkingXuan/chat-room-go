@@ -24,17 +24,6 @@ func CreateRoom(roomID string, roomName string) error {
 		return err
 	}
 
-	// room写入redis
-	// write to redis： crate a room zset
-	//flag, err := redis_write.CreateRoom(resRoomByte)
-	//if err != nil || flag != 1 {
-	//	return errors.New("create room err")
-	//}
-	////	write to redis： crate a room info
-	//flag, err = redis_write.CreateRoomInfo(roomID, roomName)
-	//if err != nil || flag != 1 {
-	//	return errors.New("create room err")
-	//}
 	err = redis_write.CreateRoomAndRoomInfo(roomID, roomName, resRoomByte)
 	if err != nil {
 		return err

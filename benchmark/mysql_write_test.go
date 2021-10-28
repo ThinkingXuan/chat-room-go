@@ -19,7 +19,7 @@ func initMy(x, y int) {
 		panic(err)
 	}
 	//初始化
-	if err := mysql.InitSQLite(); err != nil {
+	if err := mysql.InitMySql(); err != nil {
 		glog.Error(err)
 		panic("数据库初始化失败")
 	}
