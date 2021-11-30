@@ -6,6 +6,12 @@
 - Redigo框架、Viper
 - MySQL、Redis数据库、leveldb
 
+分支说明：
+- `main` 初赛的第一版本的代码
+- `submit-code` 初赛的最终提交的代码
+- `cluster-fiber` 使用fiber框架实现的复赛代码
+- `semi-finals-submit-code` 半决赛最终提交的代码
+
 开发计划：
 ### 1. 完成项目基本框架搭建
 ### 2. 完善功能
