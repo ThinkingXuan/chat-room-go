@@ -1,5 +1,5 @@
 # chat-room-go
-🎨chat-room-go 简单聊天室go语言实现 (阿里云ECS Cloudbuild开发者大赛- 性能挑战赛道)🌮
+🎨chat-room-go 简单聊天室go语言实现 (阿里云ECS Cloudbuild开发者大赛- 性能挑战赛道 - 季军)🌮
 
 技术点：
 - Gin框架、Fiber框架、Gorm框架、JWT验证
